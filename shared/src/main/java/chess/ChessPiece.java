@@ -20,26 +20,6 @@ public class ChessPiece {
         this.type = type;
     }
 
-    /*
-     * Auto-generated code. Change?
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
-    }
-
-    /*
-     * Auto-generated code. Change?
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
-
     /**
      * The various different chess piece options
      */
@@ -79,5 +59,30 @@ public class ChessPiece {
             return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1, 8), null));
         }
         return List.of();
+    }
+
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    /*
+     * Auto-generated code. Change?
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
