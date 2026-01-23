@@ -10,10 +10,10 @@ import java.util.Set;
  */
 public class MoveGenerator {
 
-    private final ChessBoard board;
-    private final ChessPosition myPosition;
-    private final int myRow;
-    private final int myCol;
+    public final ChessBoard board;
+    public final ChessPosition myPosition;
+    public final int myRow;
+    public final int myCol;
 
     public MoveGenerator(ChessBoard board, ChessPosition myPosition) {
         this.board = board;
@@ -21,14 +21,6 @@ public class MoveGenerator {
         this.myRow = myPosition.getRow();
         this.myCol = myPosition.getColumn();
     }
-
-    /*
-    public Collection<ChessMove> generate() {
-        HashSet<ChessMove> moves = new HashSet<ChessMove>();
-        return moves;
-    }
-
-     */
 
     public boolean offBoard(int row, int col) {
         Set<Integer> validCoordinates = Set.of(1, 2, 3, 4, 5, 6, 7, 8);
@@ -140,7 +132,6 @@ public class MoveGenerator {
         addMoveIfEnemy(row, col, moves);
 
         return moves;
-
     }
 
 }

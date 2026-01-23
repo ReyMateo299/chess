@@ -54,7 +54,10 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         // Set<ChessMove> moves = new HashSet<>();
-        if (piece.getPieceType() == PieceType.BISHOP) {
+        if (piece.getPieceType() == PieceType.KNIGHT) {
+            chess.KnightMoveGenerator knGenerator = new KnightMoveGenerator(board, myPosition);
+            return knGenerator.generate();
+        } else if (piece.getPieceType() == PieceType.BISHOP) {
             chess.BishopMoveGenerator bGenerator = new BishopMoveGenerator(board, myPosition);
             return bGenerator.generate();
         } else if (piece.getPieceType() == PieceType.ROOK) {
@@ -63,6 +66,9 @@ public class ChessPiece {
         } else if (piece.getPieceType() == PieceType.QUEEN) {
             chess.QueenMoveGenerator qGenerator = new QueenMoveGenerator(board, myPosition);
             return qGenerator.generate();
+        } else if (piece.getPieceType() == PieceType.KING) {
+            chess.KingMoveGenerator kGenerator = new KingMoveGenerator(board, myPosition);
+            return kGenerator.generate();
         }
         return List.of();
     }
