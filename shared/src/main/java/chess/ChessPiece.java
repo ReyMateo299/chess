@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -55,11 +53,12 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
+        // Set<ChessMove> moves = new HashSet<>();
         if (piece.getPieceType() == PieceType.BISHOP) {
             return List.of(new ChessMove(new ChessPosition(5,4), new ChessPosition(1, 8), null));
         } else if (piece.getPieceType() == PieceType.ROOK) {
-            // chess.RookMoveGenerator rGenerator = RookMoveGenerator(board, myPosition);
-            // moves = rGenerator.generate();
+            chess.RookMoveGenerator rGenerator = new RookMoveGenerator(board, myPosition);
+            return rGenerator.generate();
         }
         return List.of();
     }

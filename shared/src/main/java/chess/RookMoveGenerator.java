@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.HashSet;
+import java.util.Set;
 
 public class RookMoveGenerator extends MoveGenerator{
 
@@ -11,10 +12,8 @@ public class RookMoveGenerator extends MoveGenerator{
         super(board, myPosition);
     }
 
-    /* HashSet<ChessMove> generate() {
-        return
+    Set<ChessMove> generate() {
+        return generateOrthogonals();
     }
-
-     */
 
 }

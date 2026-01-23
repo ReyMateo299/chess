@@ -10,37 +10,106 @@ import java.util.Set;
  */
 public class MoveGenerator {
 
-    private ChessBoard board;
-    private ChessPosition myPosition;
+    private final ChessBoard board;
+    private final ChessPosition myPosition;
+    private final int myRow;
+    private final int myCol;
 
     public MoveGenerator(ChessBoard board, ChessPosition myPosition) {
         this.board = board;
         this.myPosition = myPosition;
+        this.myRow = myPosition.getRow();
+        this.myCol = myPosition.getColumn();
     }
 
+    /*
     public Collection<ChessMove> generate() {
         HashSet<ChessMove> moves = new HashSet<ChessMove>();
         return moves;
     }
 
-    public boolean offBoard(ChessPosition position) {
+     */
+
+    public boolean offBoard(int row, int col) {
         Set<Integer> validCoordinates = Set.of(1, 2, 3, 4, 5, 6, 7, 8);
-        return (!validCoordinates.contains(position.getRow()) || !validCoordinates.contains(position.getColumn()));
+        return (!validCoordinates.contains(row) || !validCoordinates.contains(col));
     }
 
-    public boolean isOpen(ChessPosition position) {
-        if (offBoard(position)) { return false; }
-        return (board.getPiece(position) == null);
+    public boolean isOpen(int row, int col) {
+        if (offBoard(row, col)) { return false; }
+        return (board.getPiece(new ChessPosition(row, col)) == null);
     }
 
-    public boolean isEnemy(ChessPosition position) {
-        if (offBoard(position)) { return false; }
-        return (board.getPiece(position).getTeamColor() != board.getPiece(myPosition).getTeamColor());
+    public boolean isEnemy(int row, int col) {
+        if (offBoard(row, col)) { return false; }
+        return (board.getPiece(new ChessPosition(row, col)).getTeamColor() != board.getPiece(myPosition).getTeamColor());
     }
 
-    public boolean isAlly(ChessPosition position) {
-        if (offBoard(position)) { return false; }
-        return (board.getPiece(position).getTeamColor() == board.getPiece(myPosition).getTeamColor());
+    public boolean isAlly(int row, int col) {
+        if (offBoard(row, col)) { return false; }
+        return (board.getPiece(new ChessPosition(row, col)).getTeamColor() == board.getPiece(myPosition).getTeamColor());
     }
+
+    public void addMoveIfEnemy(int row, int col, Set<ChessMove> moves) {
+        if (isEnemy(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+        }
+    }
+
+    public Set<ChessMove> generateOrthogonals() {
+        Set<ChessMove> moves = new HashSet<ChessMove>();
+
+        // Right
+        int row = myRow;
+        int col = myCol + 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            col++;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        // Left
+        col = myCol - 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            col--;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        // Up
+        row = myRow + 1;
+        col = myCol;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row++;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        // Down
+        row = myRow - 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row--;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        return moves;
+    }
+
+    /*
+    public Set<ChessMove> generateDiagonals() {
+
+        // Diagonal up
+        int row = myRow + 1;
+        int col = myCol + 1;
+        while (isOpen(row, col)) {
+
+        }
+
+
+        return Set.of(new ChessMove(new ChessPosition(1, 1), new ChessPosition(2, 2), null));
+    }
+
+     */
 
 }
