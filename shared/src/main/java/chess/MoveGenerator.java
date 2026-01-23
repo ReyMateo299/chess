@@ -96,20 +96,51 @@ public class MoveGenerator {
         return moves;
     }
 
-    /*
     public Set<ChessMove> generateDiagonals() {
+        Set<ChessMove> moves = new HashSet<ChessMove>();
 
-        // Diagonal up
+        // Up Right
         int row = myRow + 1;
         int col = myCol + 1;
         while (isOpen(row, col)) {
-
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row++;
+            col++;
         }
+        addMoveIfEnemy(row, col, moves);
 
+        // Down Right
+        row = myRow - 1;
+        col = myCol + 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row--;
+            col++;
+        }
+        addMoveIfEnemy(row, col, moves);
 
-        return Set.of(new ChessMove(new ChessPosition(1, 1), new ChessPosition(2, 2), null));
+        // Down Left
+        row = myRow - 1;
+        col = myCol - 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row--;
+            col--;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        // Up Left
+        row = myRow + 1;
+        col = myCol - 1;
+        while (isOpen(row, col)) {
+            moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
+            row++;
+            col--;
+        }
+        addMoveIfEnemy(row, col, moves);
+
+        return moves;
+
     }
-
-     */
 
 }
