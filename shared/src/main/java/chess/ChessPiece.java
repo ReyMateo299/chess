@@ -60,6 +60,9 @@ public class ChessPiece {
         } else if (piece.getPieceType() == PieceType.ROOK) {
             chess.RookMoveGenerator rGenerator = new RookMoveGenerator(board, myPosition);
             return rGenerator.generate();
+        } else if (piece.getPieceType() == PieceType.QUEEN) {
+            chess.QueenMoveGenerator qGenerator = new QueenMoveGenerator(board, myPosition);
+            return qGenerator.generate();
         }
         return List.of();
     }
