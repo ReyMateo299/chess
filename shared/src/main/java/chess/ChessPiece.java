@@ -53,8 +53,10 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
-        // Set<ChessMove> moves = new HashSet<>();
-        if (piece.getPieceType() == PieceType.KNIGHT) {
+        if (piece.getPieceType() == PieceType.PAWN) {
+            chess.PawnMoveGenerator pGenerator = new PawnMoveGenerator(board, myPosition);
+            return pGenerator.generate();
+        } else if (piece.getPieceType() == PieceType.KNIGHT) {
             chess.KnightMoveGenerator knGenerator = new KnightMoveGenerator(board, myPosition);
             return knGenerator.generate();
         } else if (piece.getPieceType() == PieceType.BISHOP) {

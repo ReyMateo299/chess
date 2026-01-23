@@ -34,7 +34,9 @@ public class MoveGenerator {
 
     public boolean isEnemy(int row, int col) {
         if (offBoard(row, col)) { return false; }
-        return (board.getPiece(new ChessPosition(row, col)).getTeamColor() != board.getPiece(myPosition).getTeamColor());
+        if (!isOpen(row, col)) {
+            return (board.getPiece(new ChessPosition(row, col)).getTeamColor() != board.getPiece(myPosition).getTeamColor());
+        } return false;
     }
 
     public boolean isAlly(int row, int col) {
