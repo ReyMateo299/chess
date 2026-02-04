@@ -1,19 +1,15 @@
 package chess;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class BishopMoveGenerator extends MoveGenerator{
 
-    private ChessBoard board;
-    private ChessPosition myPosition;
-
-    public BishopMoveGenerator(ChessBoard board, ChessPosition myPosition) {
+    BishopMoveGenerator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
     }
 
     Set<ChessMove> generate() {
-        return generateDiagonals();
+        int[][] directions = {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
+        return generateMany(directions);
     }
-
 }
