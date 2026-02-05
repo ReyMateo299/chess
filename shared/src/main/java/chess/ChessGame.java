@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -63,7 +64,34 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start_position = move.getStartPosition();
+        ChessPosition end_position = move.getEndPosition();
+
+//        Check if move is valid
+        Collection<ChessMove> valid_moves = validMoves(start_position);
+        if (!valid_moves.contains(move)) {
+            throw new InvalidMoveException("Invalid move");
+        }
+
+//        Check whose turn it is
+        TeamColor move_team = board.getPiece(start_position).getTeamColor();
+        if (move_team != teamTurn) {
+            throw new InvalidMoveException("Invalid move: it is not this team's turn.");
+        }
+
+//        Determines what piece will be placed in the end position
+        ChessPiece piece;
+        ChessPiece.PieceType promotion_piece = move.getPromotionPiece();
+        if (promotion_piece != null) {
+            piece = new ChessPiece(move_team, promotion_piece);
+        } else {
+            piece = board.getPiece(start_position);
+        }
+
+//        Execute move on the board
+        board.addPiece(end_position, piece);
+        board.addPiece(start_position, null);
+
     }
 
     /**
@@ -113,5 +141,19 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
     }
 }
