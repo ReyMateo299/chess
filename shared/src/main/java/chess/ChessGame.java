@@ -67,19 +67,16 @@ public class ChessGame {
         ChessPosition start_position = move.getStartPosition();
         ChessPosition end_position = move.getEndPosition();
 
-//        Check if move is valid
-        Collection<ChessMove> valid_moves = validMoves(start_position);
-        if (!valid_moves.contains(move)) {
-            throw new InvalidMoveException("Invalid move");
-        }
-
-//        Check whose turn it is
         TeamColor move_team = board.getPiece(start_position).getTeamColor();
         if (move_team != teamTurn) {
             throw new InvalidMoveException("Invalid move: it is not this team's turn.");
         }
 
-//        Determines what piece will be placed in the end position
+        Collection<ChessMove> valid_moves = validMoves(start_position);
+        if (!valid_moves.contains(move)) {
+            throw new InvalidMoveException("Invalid move");
+        }
+
         ChessPiece piece;
         ChessPiece.PieceType promotion_piece = move.getPromotionPiece();
         if (promotion_piece != null) {
@@ -88,10 +85,8 @@ public class ChessGame {
             piece = board.getPiece(start_position);
         }
 
-//        Execute move on the board
-        board.addPiece(end_position, piece);
         board.addPiece(start_position, null);
-
+        board.addPiece(end_position, piece);
     }
 
     /**
@@ -101,7 +96,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+//        team color = team that's in check or not
+//        look to see if enemy team can capture the king of teamColor
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition piecePosition = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(piecePosition);
+                if (piece != null && piece.getTeamColor() != teamColor) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+                    for (ChessMove move: moves) {
+                        ChessPiece capturePiece = board.getPiece(move.getEndPosition());
+                        if (capturePiece != null && capturePiece.getPieceType() == ChessPiece.PieceType.KING) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
