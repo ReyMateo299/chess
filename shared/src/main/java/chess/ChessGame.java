@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -52,9 +53,26 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) { return null; }
+        TeamColor teamColor = piece.getTeamColor();
         Collection<ChessMove> all_moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> valid_moves = new HashSet<>();
+
 //        implement validMoves functionality
-        return all_moves;
+        for (ChessMove move: all_moves) {
+            ChessBoard testBoard = board.clone();
+
+            ChessPiece.PieceType promotion_piece = move.getPromotionPiece();
+            if (move.getPromotionPiece() != null) {
+                piece = new ChessPiece(teamColor, promotion_piece);
+            }
+
+            testBoard.addPiece(move.getStartPosition(), null);
+            testBoard.addPiece(move.getEndPosition(), piece);
+            if (!givenBoardIsInCheck(teamColor, testBoard)) {
+                valid_moves.add(move);
+            }
+        }
+        return valid_moves;
     }
 
     /**
