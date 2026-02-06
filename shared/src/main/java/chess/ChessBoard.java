@@ -77,6 +77,8 @@ public class ChessBoard implements Cloneable{
         try {
             ChessBoard clone = (ChessBoard) super.clone();
 
+            clone.squares = new ChessPiece[8][8];
+
             for (int i = 0; i < 8; i++) {
                 System.arraycopy(this.squares[i], 0, clone.squares[i], 0, 8);
             }
