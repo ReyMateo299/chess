@@ -85,6 +85,10 @@ public class ChessGame {
         ChessPosition start_position = move.getStartPosition();
         ChessPosition end_position = move.getEndPosition();
 
+        if (board.getPiece(start_position) == null) {
+            throw new InvalidMoveException("There is no piece at the starting position of this move.");
+        }
+
         TeamColor move_team = board.getPiece(start_position).getTeamColor();
         if (move_team != teamTurn) {
             throw new InvalidMoveException("Invalid move: it is not this team's turn.");
