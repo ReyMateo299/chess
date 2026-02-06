@@ -96,8 +96,50 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-//        team color = team that's in check or not
-//        look to see if enemy team can capture the king of teamColor
+        // would I need to check if a certain move would put the other piece in check?
+        return givenBoardIsInCheck(teamColor, board);
+    }
+
+    /**
+     * Determines if the given team is in checkmate
+     *
+     * @param teamColor which team to check for checkmate
+     * @return True if the specified team is in checkmate
+     */
+    public boolean isInCheckmate(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition piecePosition = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(piecePosition);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+                    for (ChessMove move: moves) {
+                        ChessBoard testBoard = board.clone();
+                        testBoard.addPiece(move.getStartPosition(), null);
+                        testBoard.addPiece(move.getEndPosition(), piece);
+                        if (!givenBoardIsInCheck(teamColor, testBoard)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Determines if the given team is in stalemate, which here is defined as having
+     * no valid moves while not in check.
+     *
+     * @param teamColor which team to check for stalemate
+     * @return True if the specified team is in stalemate, otherwise false
+     */
+    public boolean isInStalemate(TeamColor teamColor) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public boolean givenBoardIsInCheck(TeamColor teamColor, ChessBoard board) {
+        // would I need to check if a certain move would put the other piece in check?
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition piecePosition = new ChessPosition(i, j);
@@ -114,27 +156,6 @@ public class ChessGame {
             }
         }
         return false;
-    }
-
-    /**
-     * Determines if the given team is in checkmate
-     *
-     * @param teamColor which team to check for checkmate
-     * @return True if the specified team is in checkmate
-     */
-    public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    /**
-     * Determines if the given team is in stalemate, which here is defined as having
-     * no valid moves while not in check.
-     *
-     * @param teamColor which team to check for stalemate
-     * @return True if the specified team is in stalemate, otherwise false
-     */
-    public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
     }
 
     /**

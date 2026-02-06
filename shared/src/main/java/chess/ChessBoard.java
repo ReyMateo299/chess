@@ -73,8 +73,19 @@ public class ChessBoard implements Cloneable{
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public ChessBoard clone() {
+        try {
+            ChessBoard clone = (ChessBoard) super.clone();
+
+            for (int i = 0; i < 8; i++) {
+                System.arraycopy(this.squares[i], 0, clone.squares[i], 0, 8);
+            }
+
+            return clone;
+
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
