@@ -1,4 +1,8 @@
-package chess;
+package chess.moveGenerators;
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
 
 import java.util.HashSet;
 import java.util.Set;

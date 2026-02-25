@@ -1,5 +1,7 @@
 package chess;
 
+import chess.moveGenerators.*;
+
 import java.util.*;
 
 /**
@@ -54,22 +56,22 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece(myPosition);
         if (piece.getPieceType() == PieceType.PAWN) {
-            chess.PawnMoveGenerator pGenerator = new PawnMoveGenerator(board, myPosition);
+            PawnMoveGenerator pGenerator = new PawnMoveGenerator(board, myPosition);
             return pGenerator.generate();
         } else if (piece.getPieceType() == PieceType.KNIGHT) {
-            chess.KnightMoveGenerator knGenerator = new KnightMoveGenerator(board, myPosition);
+            KnightMoveGenerator knGenerator = new KnightMoveGenerator(board, myPosition);
             return knGenerator.generate();
         } else if (piece.getPieceType() == PieceType.BISHOP) {
-            chess.BishopMoveGenerator bGenerator = new BishopMoveGenerator(board, myPosition);
+            BishopMoveGenerator bGenerator = new BishopMoveGenerator(board, myPosition);
             return bGenerator.generate();
         } else if (piece.getPieceType() == PieceType.ROOK) {
-            chess.RookMoveGenerator rGenerator = new RookMoveGenerator(board, myPosition);
+            RookMoveGenerator rGenerator = new RookMoveGenerator(board, myPosition);
             return rGenerator.generate();
         } else if (piece.getPieceType() == PieceType.QUEEN) {
-            chess.QueenMoveGenerator qGenerator = new QueenMoveGenerator(board, myPosition);
+            QueenMoveGenerator qGenerator = new QueenMoveGenerator(board, myPosition);
             return qGenerator.generate();
         } else if (piece.getPieceType() == PieceType.KING) {
-            chess.KingMoveGenerator kGenerator = new KingMoveGenerator(board, myPosition);
+            KingMoveGenerator kGenerator = new KingMoveGenerator(board, myPosition);
             return kGenerator.generate();
         }
         return List.of();

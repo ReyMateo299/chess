@@ -1,9 +1,11 @@
-package chess;
+package chess.moveGenerators;
+
+import chess.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class PawnMoveGenerator extends MoveGenerator{
+public class PawnMoveGenerator extends MoveGenerator {
 
     private final ChessBoard board;
     private final ChessPosition myPosition;
@@ -11,7 +13,7 @@ public class PawnMoveGenerator extends MoveGenerator{
     private final int myCol;
     private final ChessGame.TeamColor myTeam;
 
-    PawnMoveGenerator(ChessBoard board, ChessPosition myPosition) {
+    public PawnMoveGenerator(ChessBoard board, ChessPosition myPosition) {
         super(board, myPosition);
         this.board = board;
         this.myPosition = myPosition;
@@ -20,7 +22,7 @@ public class PawnMoveGenerator extends MoveGenerator{
         this.myTeam = board.getPiece(myPosition).getTeamColor();
     }
 
-    Set<ChessMove> generate() {
+    public Set<ChessMove> generate() {
         Set<ChessMove> moves = new HashSet<>();
         int forward;
         int[] horizontals = {-1, 1};
