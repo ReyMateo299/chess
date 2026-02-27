@@ -10,6 +10,7 @@ import service.results.*;
 import service.exceptions.*;
 
 import service.ClearService;
+import service.GameService;
 import service.UserService;
 
 import dataaccess.*;
@@ -21,6 +22,7 @@ public class Server {
     private final Javalin javalin;
 
     private final ClearService clearService;
+    private final GameService gameService;
     private final UserService userService;
 
     private String dataAccessType = "Memory";
@@ -32,6 +34,7 @@ public class Server {
         javalin.post("/user", this::register);
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
+        javalin.get("/game", this::listGames);
         javalin.delete("/db", this::clear);
         javalin.exception(ServiceException.class, this::exceptionHandler);
 
@@ -51,6 +54,7 @@ public class Server {
         }
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
+        gameService = new GameService(authDAO, gameDAO, userDAO);
         userService = new UserService(authDAO, userDAO);
     }
 
@@ -91,6 +95,11 @@ public class Server {
     private void logout(Context ctx) throws ServiceException {
         LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
         userService.logout(logoutRequest);
+    }
+
+    private void listGames(Context ctx) throws ServiceException {
+        ListGamesRequest listGamesRequest = new ListGamesRequest(ctx.header("authorization"));
+        gameService.listGames(listGamesRequest);
     }
 
     private void clear(Context ctx) {
