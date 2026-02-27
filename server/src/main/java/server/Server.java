@@ -7,9 +7,11 @@ import io.javalin.http.Context;
 
 import service.requests.*;
 import service.results.*;
+import service.exceptions.*;
 
 import service.ClearService;
 import service.UserService;
+
 import dataaccess.*;
 
 import java.util.Map;
@@ -31,7 +33,7 @@ public class Server {
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
         javalin.delete("/db", this::clear);
-        javalin.exception(DataAccessException.class, this::exceptionHandler);
+        javalin.exception(ServiceException.class, this::exceptionHandler);
 
         AuthDAO authDAO;
         GameDAO gameDAO;
@@ -62,29 +64,31 @@ public class Server {
     }
 
     // delete this??
-    private void exceptionHandler(DataAccessException ex, Context ctx) {
+    private void exceptionHandler(ServiceException ex, Context ctx) {
         ctx.status(400);
-        switch (ex.getMessage()) {
-            case "Error: bad request" -> ctx.status(400);
-            case "Error: invalid login credentials", "Error: unauthorized" -> ctx.status(401);
-            case "Error: username already taken" -> ctx.status(403);
+        switch (ex) {
+            case BadRequestException bre -> ctx.status(400);
+            case InvalidCredentialsException ice -> ctx.status(401);
+            case InvalidAuthenticationException iae -> ctx.status(401);
+            case AlreadyTakenException ate -> ctx.status(403);
+            default -> ctx.status(500);
         }
         ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
 
-    private void register(Context ctx) throws DataAccessException{
+    private void register(Context ctx) throws ServiceException {
         RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
         RegisterResult registerResult = userService.register(registerRequest);
         ctx.result(new Gson().toJson(registerResult));
     }
 
-    private void login(Context ctx) throws DataAccessException {
+    private void login(Context ctx) throws ServiceException {
         LoginRequest loginRequest = new Gson().fromJson(ctx.body(), LoginRequest.class);
         LoginResult loginResult = userService.login(loginRequest);
         ctx.result(new Gson().toJson(loginResult));
     }
 
-    private void logout(Context ctx) throws DataAccessException {
+    private void logout(Context ctx) throws ServiceException {
         LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
         userService.logout(logoutRequest);
     }
