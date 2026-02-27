@@ -5,7 +5,6 @@ import model.GameData;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class MemoryGameDAO implements GameDAO {
     final private HashMap<Integer, GameData> games = new HashMap<>();
@@ -13,12 +12,6 @@ public class MemoryGameDAO implements GameDAO {
 //    public GameData getGame() {}
 
     public Collection<GameData> listGames() {
-        games.put(1, new GameData(1,
-                "matt",
-                "luke",
-                "game",
-                new ChessGame()
-                ));
         return games.values();
     }
 

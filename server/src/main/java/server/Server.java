@@ -99,7 +99,8 @@ public class Server {
 
     private void listGames(Context ctx) throws ServiceException {
         ListGamesRequest listGamesRequest = new ListGamesRequest(ctx.header("authorization"));
-        gameService.listGames(listGamesRequest);
+        ListGamesResult result = gameService.listGames(listGamesRequest);
+        ctx.result(new Gson().toJson(result));
     }
 
     private void clear(Context ctx) {
