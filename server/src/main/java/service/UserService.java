@@ -8,8 +8,8 @@ import dataaccess.DataAccessException;
 import model.UserData;
 import model.AuthData;
 
-import service.requests.RegisterRequest;
-import service.results.RegisterResult;
+import service.requests.*;
+import service.results.*;
 
 public class UserService {
 
@@ -22,6 +22,10 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+        if (registerRequest.username() == null || registerRequest.password() == null
+            || registerRequest.email() == null) {
+            throw new DataAccessException("Error: bad request");
+        }
         if (userDAO.getUser(registerRequest.username()) != null) {
             throw new DataAccessException("Error: username already taken");
         }
@@ -37,6 +41,25 @@ public class UserService {
         return new RegisterResult(newUser.username(), newAuth.authToken());
     }
 
-//    public LoginResult login(LoginRequest loginRequest) {}
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+        if (loginRequest.username() == null || loginRequest.password() == null) {
+            throw new DataAccessException("Error: bad request");
+        }
+        UserData user = userDAO.getUser(loginRequest.username());
+        if (user == null) {
+            throw new DataAccessException("Error: invalid login credentials");
+        }
+        if (!isValidPassword(user, loginRequest.password())) {
+            throw new DataAccessException("Error: invalid login credentials");
+        }
+
+        AuthData newAuth = authDAO.createAuth(loginRequest.username());
+        return new LoginResult(user.username(), newAuth.authToken());
+    }
+
+    private boolean isValidPassword(UserData user, String password) {
+        return user.password().equals(password);
+    }
+
 //    public void logout(LogoutRequest logoutRequest) {}
 }
