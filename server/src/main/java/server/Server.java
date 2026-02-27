@@ -29,6 +29,7 @@ public class Server {
         // Register your endpoints and exception handlers here.
         javalin.post("/user", this::register);
         javalin.post("/session", this::login);
+        javalin.delete("/session", this::logout);
         javalin.delete("/db", this::clear);
         javalin.exception(DataAccessException.class, this::exceptionHandler);
 
@@ -63,12 +64,10 @@ public class Server {
     // delete this??
     private void exceptionHandler(DataAccessException ex, Context ctx) {
         ctx.status(400);
-        if (ex.getMessage().equals("Error: username already taken")) {
-            ctx.status(403);
-        } else if (ex.getMessage().equals("Error: invalid login credentials")) {
-            ctx.status(401);
-        } else if (ex.getMessage().equals("Error: bad request")) {
-            ctx.status(400);
+        switch (ex.getMessage()) {
+            case "Error: bad request" -> ctx.status(400);
+            case "Error: invalid login credentials", "Error: unauthorized" -> ctx.status(401);
+            case "Error: username already taken" -> ctx.status(403);
         }
         ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
@@ -85,7 +84,12 @@ public class Server {
         ctx.result(new Gson().toJson(loginResult));
     }
 
+    private void logout(Context ctx) throws DataAccessException {
+        LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
+        userService.logout(logoutRequest);
+    }
+
     private void clear(Context ctx) {
-        this.clearService.clear();
+        clearService.clear();
     }
 }

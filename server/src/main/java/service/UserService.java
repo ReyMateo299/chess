@@ -57,9 +57,18 @@ public class UserService {
         return new LoginResult(user.username(), newAuth.authToken());
     }
 
+    public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        if (logoutRequest.authToken().isEmpty()) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        boolean deleteSuccess = authDAO.deleteAuth(logoutRequest.authToken());
+        if (!deleteSuccess) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+    }
+
     private boolean isValidPassword(UserData user, String password) {
         return user.password().equals(password);
     }
 
-//    public void logout(LogoutRequest logoutRequest) {}
 }
