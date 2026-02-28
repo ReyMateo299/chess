@@ -57,7 +57,8 @@ public class GameService {
 
     public void joinGame(JoinGameRequest request) throws ServiceException{
         AuthData authData = checkAuthorization(request.authToken());
-        if (request.gameID() == null || !colors.contains(request.playerColor())) {
+        if (request.gameID() == null || request.playerColor() == null
+                || !colors.contains(request.playerColor())) {
             throw new BadRequestException("Error: bad request");
         }
         GameData gameData = gameDAO.getGame(request.gameID());

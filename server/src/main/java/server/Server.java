@@ -74,6 +74,7 @@ public class Server {
         ctx.status(400);
         switch (ex) {
             case BadRequestException bre -> ctx.status(400);
+            case GameNotFoundException exc -> ctx.status(400);
             case InvalidCredentialsException ice -> ctx.status(401);
             case InvalidAuthenticationException iae -> ctx.status(401);
             case AlreadyTakenException ate -> ctx.status(403);
