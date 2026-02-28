@@ -36,6 +36,7 @@ public class Server {
         javalin.delete("/session", this::logout);
         javalin.get("/game", this::listGames);
         javalin.post("/game", this::createGame);
+        javalin.put("/game", this::joinGame);
         javalin.delete("/db", this::clear);
         javalin.exception(ServiceException.class, this::exceptionHandler);
 
@@ -110,6 +111,13 @@ public class Server {
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName.gameName());
         CreateGameResult result = gameService.createGame(createGameRequest);
         ctx.result(new Gson().toJson(result));
+    }
+
+    private void joinGame(Context ctx) throws ServiceException {
+        String authToken = ctx.header("authorization");
+        JoinData joinData = new Gson().fromJson(ctx.body(), JoinData.class);
+        JoinGameRequest request = new JoinGameRequest(authToken, joinData.playerColor(), joinData.gameID());
+        gameService.joinGame(request);
     }
 
     private void clear(Context ctx) {

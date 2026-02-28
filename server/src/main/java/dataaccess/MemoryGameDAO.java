@@ -18,6 +18,19 @@ public class MemoryGameDAO implements GameDAO {
         return newGame;
     }
 
+    public GameData updateGame(int gameID, String userName, String playerColor) {
+        GameData gameData = getGame(gameID);
+        if (playerColor.equals("WHITE") && gameData.whiteUsername() != null) {
+            return null;
+        }
+        if (playerColor.equals("BLACK") && gameData.blackUsername() != null) {
+            return null;
+        }
+        GameData updatedGame = gameData.addPlayer(playerColor, userName);
+        games.put(gameID, updatedGame);
+        return updatedGame;
+    }
+
     public GameData getGame(String gameName) {
         for (GameData gameData : games.values()) {
             if (gameData.gameName().equals(gameName)) {
@@ -25,6 +38,10 @@ public class MemoryGameDAO implements GameDAO {
             }
         }
         return null;
+    }
+
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
     }
 
     public Collection<GameData> listGames() {

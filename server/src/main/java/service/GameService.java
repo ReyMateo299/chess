@@ -3,27 +3,30 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import model.AuthData;
 import model.GameData;
 import service.exceptions.*;
 
 import service.requests.CreateGameRequest;
+import service.requests.JoinGameRequest;
 import service.requests.ListGamesRequest;
 import service.results.CreateGameResult;
 import service.results.GameResult;
 import service.results.ListGamesResult;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class GameService {
 
     private final AuthDAO authDAO;
     private final GameDAO gameDAO;
-    private final UserDAO userDAO;
+    private final Set<String> colors;
 
     public GameService(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
-        this.userDAO = userDAO;
+        this.colors = Set.of("WHITE", "BLACK");
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws ServiceException {
@@ -52,22 +55,36 @@ public class GameService {
         return new ListGamesResult(games);
     }
 
-
-//    private AuthData checkAuthorization(String authToken) throws InvalidAuthenticationException {
-//        if (authToken.isEmpty()) {
-//            throw new InvalidAuthenticationException("Error: invalid authentication");
-//        }
-//        AuthData auth = authDAO.getAuth(authToken);
-//        if (auth == null) {
-//            throw new InvalidAuthenticationException("Error: invalid authentication");
-//        }
-//        return auth;
-//    }
-
-    private void checkAuthorization(String authToken) throws InvalidAuthenticationException {
-        if (authToken.isEmpty() || authDAO.getAuth(authToken) == null) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
+    public void joinGame(JoinGameRequest request) throws ServiceException{
+        AuthData authData = checkAuthorization(request.authToken());
+        if (request.gameID() == null || !colors.contains(request.playerColor())) {
+            throw new BadRequestException("Error: bad request");
+        }
+        GameData gameData = gameDAO.getGame(request.gameID());
+        if (gameData == null) {
+            throw new GameNotFoundException("Error: game not found");
+        }
+        GameData updatedGame = gameDAO.updateGame(request.gameID(), authData.username(), request.playerColor());
+        if (updatedGame == null) {
+            throw new AlreadyTakenException("Error: team already taken");
         }
     }
+
+    private AuthData checkAuthorization(String authToken) throws InvalidAuthenticationException {
+        if (authToken.isEmpty()) {
+            throw new InvalidAuthenticationException("Error: invalid authentication");
+        }
+        AuthData auth = authDAO.getAuth(authToken);
+        if (auth == null) {
+            throw new InvalidAuthenticationException("Error: invalid authentication");
+        }
+        return auth;
+    }
+
+//    private void checkAuthorization(String authToken) throws InvalidAuthenticationException {
+//        if (authToken.isEmpty() || authDAO.getAuth(authToken) == null) {
+//            throw new InvalidAuthenticationException("Error: invalid authentication");
+//        }
+//    }
 
 }
