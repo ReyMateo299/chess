@@ -29,8 +29,9 @@ public class BasicServiceTests {
 
     @BeforeEach
     public void setup() {
-        ClearService service = new ClearService(authDAO, gameDAO, userDAO);
-        service.clear();
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+        userDAO = new MemoryUserDAO();
     }
 
     @Test
@@ -176,7 +177,7 @@ public class BasicServiceTests {
         ListGamesResult expected = new ListGamesResult(List.of(new GameResult(
                 1, null, null, "gameName"
         )));
-        Assertions.assertEquals(listResult, expected);
+        Assertions.assertEquals(listResult.games(), expected.games());
     }
 
     @Test
@@ -208,11 +209,58 @@ public class BasicServiceTests {
         ListGamesResult expectedFalse = new ListGamesResult(List.of(new GameResult(
                 1, "", "", "gameName"
         )));
-        Assertions.assertNotEquals(listResult, expectedFalse);
+        Assertions.assertNotEquals(listResult.games(), expectedFalse.games());
     }
 
     @Test
-//    @Order(1)
+    @Order(11)
+    @DisplayName("Join Game - Positive")
+    public void joinGameSuccess() {
+        UserService userService = new UserService(authDAO, userDAO);
+        GameService gameService = new GameService(authDAO, gameDAO);
+
+        RegisterRequest request = new RegisterRequest("name", "password", "email");
+        RegisterResult result = null;
+        try {
+            result = userService.register(request);
+        } catch (ServiceException s) {
+            Assertions.fail();
+        }
+
+        CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
+        Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
+
+        JoinGameRequest joinRequest = new JoinGameRequest(result.authToken(), "WHITE", 1);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(joinRequest));
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Join Game - Negative")
+    public void joinGameColorTaken() {
+        UserService userService = new UserService(authDAO, userDAO);
+        GameService gameService = new GameService(authDAO, gameDAO);
+
+        RegisterRequest request = new RegisterRequest("name", "password", "email");
+        RegisterResult result = null;
+        try {
+            result = userService.register(request);
+        } catch (ServiceException s) {
+            Assertions.fail();
+        }
+
+        CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
+        Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
+
+        JoinGameRequest joinRequest = new JoinGameRequest(result.authToken(), "WHITE", 1);
+        Assertions.assertDoesNotThrow(() -> gameService.joinGame(joinRequest));
+
+        JoinGameRequest badRequest = new JoinGameRequest(result.authToken(), "WHITE", 1);
+        Assertions.assertThrows(AlreadyTakenException.class, () -> gameService.joinGame(badRequest));
+    }
+
+    @Test
+    @Order(13)
     @DisplayName("Clear - Positive")
     public void clearServiceSuccess() {
         ClearService service = new ClearService(authDAO, gameDAO, userDAO);
