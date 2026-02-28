@@ -35,6 +35,7 @@ public class Server {
         javalin.post("/session", this::login);
         javalin.delete("/session", this::logout);
         javalin.get("/game", this::listGames);
+        javalin.post("/game", this::createGame);
         javalin.delete("/db", this::clear);
         javalin.exception(ServiceException.class, this::exceptionHandler);
 
@@ -100,6 +101,14 @@ public class Server {
     private void listGames(Context ctx) throws ServiceException {
         ListGamesRequest listGamesRequest = new ListGamesRequest(ctx.header("authorization"));
         ListGamesResult result = gameService.listGames(listGamesRequest);
+        ctx.result(new Gson().toJson(result));
+    }
+
+    private void createGame(Context ctx) throws ServiceException {
+        String authToken = ctx.header("authorization");
+        GameName gameName = new Gson().fromJson(ctx.body(), GameName.class);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName.gameName());
+        CreateGameResult result = gameService.createGame(createGameRequest);
         ctx.result(new Gson().toJson(result));
     }
 

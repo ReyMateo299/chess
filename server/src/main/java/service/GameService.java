@@ -6,7 +6,9 @@ import dataaccess.UserDAO;
 import model.GameData;
 import service.exceptions.*;
 
+import service.requests.CreateGameRequest;
 import service.requests.ListGamesRequest;
+import service.results.CreateGameResult;
 import service.results.GameResult;
 import service.results.ListGamesResult;
 
@@ -24,14 +26,20 @@ public class GameService {
         this.userDAO = userDAO;
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ServiceException {
-        if (listGamesRequest.authToken().isEmpty()) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
+    public CreateGameResult createGame(CreateGameRequest request) throws ServiceException {
+        checkAuthorization(request.authToken());
+        if (request.gameName() == null) {
+            throw new BadRequestException("Error: invalid game name");
         }
-        if (authDAO.getAuth(listGamesRequest.authToken()) == null) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
+        if (gameDAO.getGame(request.gameName()) != null) {
+            throw new BadRequestException("Error: game name already in use");
         }
+        GameData newGame = gameDAO.createGame(request.gameName());
+        return new CreateGameResult(newGame.gameID());
+    }
 
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ServiceException {
+        checkAuthorization(listGamesRequest.authToken());
         ArrayList<GameResult> games = new ArrayList<>();
         for (GameData game : gameDAO.listGames()) {
             games.add(new GameResult(
@@ -44,7 +52,22 @@ public class GameService {
         return new ListGamesResult(games);
     }
 
-//    public LoginResult login(LoginRequest loginRequest) {}
-//    public void logout(LogoutRequest logoutRequest) {}
+
+//    private AuthData checkAuthorization(String authToken) throws InvalidAuthenticationException {
+//        if (authToken.isEmpty()) {
+//            throw new InvalidAuthenticationException("Error: invalid authentication");
+//        }
+//        AuthData auth = authDAO.getAuth(authToken);
+//        if (auth == null) {
+//            throw new InvalidAuthenticationException("Error: invalid authentication");
+//        }
+//        return auth;
+//    }
+
+    private void checkAuthorization(String authToken) throws InvalidAuthenticationException {
+        if (authToken.isEmpty() || authDAO.getAuth(authToken) == null) {
+            throw new InvalidAuthenticationException("Error: invalid authentication");
+        }
+    }
 
 }
