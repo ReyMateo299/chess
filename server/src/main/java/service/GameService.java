@@ -23,7 +23,7 @@ public class GameService {
     private final GameDAO gameDAO;
     private final Set<String> colors;
 
-    public GameService(AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
+    public GameService(AuthDAO authDAO, GameDAO gameDAO) {
         this.authDAO = authDAO;
         this.gameDAO = gameDAO;
         this.colors = Set.of("WHITE", "BLACK");

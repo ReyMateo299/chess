@@ -56,7 +56,7 @@ public class Server {
         }
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
-        gameService = new GameService(authDAO, gameDAO, userDAO);
+        gameService = new GameService(authDAO, gameDAO);
         userService = new UserService(authDAO, userDAO);
     }
 
