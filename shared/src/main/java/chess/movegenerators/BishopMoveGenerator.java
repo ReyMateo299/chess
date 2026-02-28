@@ -1,4 +1,4 @@
-package chess.moveGenerators;
+package chess.movegenerators;
 
 import chess.ChessBoard;
 import chess.ChessMove;

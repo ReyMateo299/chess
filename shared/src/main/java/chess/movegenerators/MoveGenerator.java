@@ -1,4 +1,4 @@
-package chess.moveGenerators;
+package chess.movegenerators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -63,7 +63,9 @@ public class MoveGenerator {
     public boolean isOpen(int row, int col) {
         if (offBoard(row, col)) {
             return false;
-        } else return board.getPiece(new ChessPosition(row, col)) == null;
+        } else {
+            return board.getPiece(new ChessPosition(row, col)) == null;
+        }
     }
 
     public boolean offBoard(int row, int col) {

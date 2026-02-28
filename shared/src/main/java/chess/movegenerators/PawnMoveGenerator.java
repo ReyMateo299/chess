@@ -1,4 +1,4 @@
-package chess.moveGenerators;
+package chess.movegenerators;
 
 import chess.*;
 
@@ -29,7 +29,9 @@ public class PawnMoveGenerator extends MoveGenerator {
 
         if (myTeam == ChessGame.TeamColor.WHITE) {
             forward = 1;
-        } else forward = -1;
+        } else {
+            forward = -1;
+        }
 
         if (firstMove()) {
             if (isOpen(myRow + forward, myCol) && isOpen(myRow + forward*2, myCol)) {
@@ -40,14 +42,18 @@ public class PawnMoveGenerator extends MoveGenerator {
         if (isOpen(myRow + forward, myCol)) {
             if (otherSide(myRow + forward)) {
                 moves.addAll(generatePromotionMoves(myRow + forward, myCol));
-            } else moves.add(new ChessMove(myPosition, new ChessPosition(myRow + forward, myCol), null));
+            } else {
+                moves.add(new ChessMove(myPosition, new ChessPosition(myRow + forward, myCol), null));
+            }
         }
 
         for (int horizontal: horizontals) {
             if (isEnemy(myRow + forward, myCol + horizontal)) {
                 if (otherSide(myRow + forward)) {
                     moves.addAll(generatePromotionMoves(myRow + forward, myCol + horizontal));
-                } else moves.add(new ChessMove(myPosition, new ChessPosition(myRow + forward, myCol + horizontal), null));
+                } else {
+                    moves.add(new ChessMove(myPosition, new ChessPosition(myRow + forward, myCol + horizontal), null));
+                }
             }
         }
 
@@ -72,12 +78,16 @@ public class PawnMoveGenerator extends MoveGenerator {
     public boolean otherSide(int row) {
         if (myTeam == ChessGame.TeamColor.WHITE) {
             return row == 8;
-        } else return row == 1;
+        } else {
+            return row == 1;
+        }
     }
 
     public boolean firstMove() {
         if (myTeam == ChessGame.TeamColor.WHITE) {
             return myRow == 2;
-        } else return myRow == 7;
+        } else {
+            return myRow == 7;
+        }
     }
 }

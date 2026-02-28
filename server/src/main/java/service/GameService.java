@@ -82,10 +82,4 @@ public class GameService {
         return auth;
     }
 
-//    private void checkAuthorization(String authToken) throws InvalidAuthenticationException {
-//        if (authToken.isEmpty() || authDAO.getAuth(authToken) == null) {
-//            throw new InvalidAuthenticationException("Error: invalid authentication");
-//        }
-//    }
-
 }

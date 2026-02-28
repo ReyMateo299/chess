@@ -54,25 +54,25 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         if (piece == null) { return null; }
         TeamColor teamColor = piece.getTeamColor();
-        Collection<ChessMove> all_moves = piece.pieceMoves(board, startPosition);
-        Collection<ChessMove> valid_moves = new HashSet<>();
+        Collection<ChessMove> allMoves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoves = new HashSet<>();
 
 //        implement validMoves functionality
-        for (ChessMove move: all_moves) {
+        for (ChessMove move: allMoves) {
             ChessBoard testBoard = board.clone();
 
-            ChessPiece.PieceType promotion_piece = move.getPromotionPiece();
+            ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
             if (move.getPromotionPiece() != null) {
-                piece = new ChessPiece(teamColor, promotion_piece);
+                piece = new ChessPiece(teamColor, promotionPiece);
             }
 
             testBoard.addPiece(move.getStartPosition(), null);
             testBoard.addPiece(move.getEndPosition(), piece);
             if (!givenBoardIsInCheck(teamColor, testBoard)) {
-                valid_moves.add(move);
+                validMoves.add(move);
             }
         }
-        return valid_moves;
+        return validMoves;
     }
 
     /**
@@ -82,33 +82,33 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPosition start_position = move.getStartPosition();
-        ChessPosition end_position = move.getEndPosition();
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
 
-        if (board.getPiece(start_position) == null) {
+        if (board.getPiece(startPosition) == null) {
             throw new InvalidMoveException("There is no piece at the starting position of this move.");
         }
 
-        TeamColor move_team = board.getPiece(start_position).getTeamColor();
-        if (move_team != teamTurn) {
+        TeamColor moveTeam = board.getPiece(startPosition).getTeamColor();
+        if (moveTeam != teamTurn) {
             throw new InvalidMoveException("Invalid move: it is not this team's turn.");
         }
 
-        Collection<ChessMove> valid_moves = validMoves(start_position);
-        if (!valid_moves.contains(move)) {
+        Collection<ChessMove> validMoves = validMoves(startPosition);
+        if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Invalid move");
         }
 
         ChessPiece piece;
-        ChessPiece.PieceType promotion_piece = move.getPromotionPiece();
-        if (promotion_piece != null) {
-            piece = new ChessPiece(move_team, promotion_piece);
+        ChessPiece.PieceType promotionPiece = move.getPromotionPiece();
+        if (promotionPiece != null) {
+            piece = new ChessPiece(moveTeam, promotionPiece);
         } else {
-            piece = board.getPiece(start_position);
+            piece = board.getPiece(startPosition);
         }
 
-        board.addPiece(start_position, null);
-        board.addPiece(end_position, piece);
+        board.addPiece(startPosition, null);
+        board.addPiece(endPosition, piece);
 
         if (teamTurn == TeamColor.WHITE) {
             teamTurn = TeamColor.BLACK;
@@ -167,8 +167,8 @@ public class ChessGame {
                     ChessPosition piecePosition = new ChessPosition(i, j);
                     ChessPiece piece = board.getPiece(piecePosition);
                     if (piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> valid_moves = validMoves(piecePosition);
-                        if (!valid_moves.isEmpty()) {
+                        Collection<ChessMove> validMoves = validMoves(piecePosition);
+                        if (!validMoves.isEmpty()) {
                             return false;
                         }
                     }

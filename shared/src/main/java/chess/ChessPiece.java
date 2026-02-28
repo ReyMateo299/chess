@@ -1,6 +1,6 @@
 package chess;
 
-import chess.moveGenerators.*;
+import chess.movegenerators.*;
 
 import java.util.*;
 
