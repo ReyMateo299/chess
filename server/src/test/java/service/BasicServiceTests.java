@@ -152,24 +152,9 @@ public class BasicServiceTests {
     @Order(9)
     @DisplayName("List Games - Positive")
     public void listGamesSuccess() {
-        UserService userService = new UserService(authDAO, userDAO);
-        GameService gameService = new GameService(authDAO, gameDAO);
-
-        RegisterRequest request = new RegisterRequest("name", "password", "email");
-        RegisterResult result = null;
-        try {
-            result = userService.register(request);
-        } catch (ServiceException s) {
-            Assertions.fail();
-        }
-
-        CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
-        Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
-
-        ListGamesRequest listRequest = new ListGamesRequest(result.authToken());
         ListGamesResult listResult = null;
         try {
-            listResult = gameService.listGames(listRequest);
+            listResult = setupListTest();
         } catch (ServiceException s) {
             Assertions.fail();
         }
@@ -184,24 +169,9 @@ public class BasicServiceTests {
     @Order(10)
     @DisplayName("List Games - Negative (Empty fields are null not strings")
     public void listGamesFailure() {
-        UserService userService = new UserService(authDAO, userDAO);
-        GameService gameService = new GameService(authDAO, gameDAO);
-
-        RegisterRequest request = new RegisterRequest("name", "password", "email");
-        RegisterResult result = null;
-        try {
-            result = userService.register(request);
-        } catch (ServiceException s) {
-            Assertions.fail();
-        }
-
-        CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
-        Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
-
-        ListGamesRequest listRequest = new ListGamesRequest(result.authToken());
         ListGamesResult listResult = null;
         try {
-            listResult = gameService.listGames(listRequest);
+            listResult = setupListTest();
         } catch (ServiceException s) {
             Assertions.fail();
         }
@@ -268,5 +238,19 @@ public class BasicServiceTests {
         service.clear();
 
         Assertions.assertTrue(gameDAO.listGames().isEmpty());
+    }
+
+    public ListGamesResult setupListTest() throws ServiceException {
+        UserService userService = new UserService(authDAO, userDAO);
+        GameService gameService = new GameService(authDAO, gameDAO);
+
+        RegisterRequest request = new RegisterRequest("name", "password", "email");
+        RegisterResult result = userService.register(request);
+
+        CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
+        Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
+
+        ListGamesRequest listRequest = new ListGamesRequest(result.authToken());
+        return gameService.listGames(listRequest);
     }
 }

@@ -137,20 +137,27 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(piecePosition);
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
-                    for (ChessMove move: moves) {
-                        ChessBoard testBoard = board.clone();
-                        testBoard.addPiece(move.getStartPosition(), null);
-                        testBoard.addPiece(move.getEndPosition(), piece);
-                        if (!givenBoardIsInCheck(teamColor, testBoard)) {
-                            return false;
-                        }
-                    }
+                if (canEscapeCheck(teamColor, piece, piecePosition)) {
+                    return false;
                 }
             }
         }
         return true;
+    }
+
+    public boolean canEscapeCheck(TeamColor teamColor, ChessPiece piece, ChessPosition position) {
+        if (piece != null && piece.getTeamColor() == teamColor) {
+            Collection<ChessMove> moves = piece.pieceMoves(board, position);
+            for (ChessMove move: moves) {
+                ChessBoard testBoard = board.clone();
+                testBoard.addPiece(move.getStartPosition(), null);
+                testBoard.addPiece(move.getEndPosition(), piece);
+                if (!givenBoardIsInCheck(teamColor, testBoard)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -166,34 +173,44 @@ public class ChessGame {
                 for (int j = 1; j < 9; j++) {
                     ChessPosition piecePosition = new ChessPosition(i, j);
                     ChessPiece piece = board.getPiece(piecePosition);
-                    if (piece != null && piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(piecePosition);
-                        if (!validMoves.isEmpty()) {
-                            return false;
-                        }
+                    if (pieceCanMove(teamColor, piece, piecePosition)) {
+                        return false;
                     }
                 }
             }
             return true;
         }
         return false;
+    }
 
+    private boolean pieceCanMove(TeamColor teamColor, ChessPiece piece, ChessPosition position) {
+        if (piece != null && piece.getTeamColor() == teamColor) {
+            Collection<ChessMove> validMoves = validMoves(position);
+            return !validMoves.isEmpty();
+        }
+        return false;
     }
 
     public boolean givenBoardIsInCheck(TeamColor teamColor, ChessBoard board) {
-        // would I need to check if a certain move would put the other piece in check?
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition piecePosition = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(piecePosition);
-                if (piece != null && piece.getTeamColor() != teamColor) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
-                    for (ChessMove move: moves) {
-                        ChessPiece capturePiece = board.getPiece(move.getEndPosition());
-                        if (capturePiece != null && capturePiece.getPieceType() == ChessPiece.PieceType.KING) {
-                            return true;
-                        }
-                    }
+                if (enemyPieceCanCaptureKing(teamColor, board, piece, piecePosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean enemyPieceCanCaptureKing(TeamColor teamColor, ChessBoard board, ChessPiece piece, ChessPosition piecePosition) {
+        if (piece != null && piece.getTeamColor() != teamColor) {
+            Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+            for (ChessMove move: moves) {
+                ChessPiece capturePiece = board.getPiece(move.getEndPosition());
+                if (capturePiece != null && capturePiece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return true;
                 }
             }
         }
