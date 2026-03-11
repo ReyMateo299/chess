@@ -27,7 +27,7 @@ public class SQLGameDAO implements GameDAO {
                     INDEX(gameName)
                 )
                 """;
-        configureDatabase(createStatement);
+        DatabaseManager.configureDatabase(createStatement);
     }
 
     public GameData createGame(String gameName) throws DataAccessException {
@@ -177,17 +177,6 @@ public class SQLGameDAO implements GameDAO {
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete game data: %s", ex);
-        }
-    }
-
-    static public void configureDatabase(String createStatement) throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(createStatement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to configure database: %s", ex);
         }
     }
 }

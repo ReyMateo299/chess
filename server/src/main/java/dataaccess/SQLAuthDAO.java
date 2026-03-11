@@ -21,7 +21,7 @@ public class SQLAuthDAO implements AuthDAO {
                     INDEX(username)
                 )
                 """;
-        configureDatabase(createStatement);
+        DatabaseManager.configureDatabase(createStatement);
     }
 
     public AuthData createAuth(String username) throws DataAccessException {
@@ -94,16 +94,5 @@ public class SQLAuthDAO implements AuthDAO {
 
     private static String generateToken() {
         return UUID.randomUUID().toString();
-    }
-
-    static public void configureDatabase(String createStatement) throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(createStatement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to configure database: %s", ex);
-        }
     }
 }
