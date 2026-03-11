@@ -4,6 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
+import service.exceptions.ServiceException;
 
 public class ClearService {
 
@@ -17,9 +18,13 @@ public class ClearService {
         this.userDAO = userDAO;
     }
 
-    public void clear() throws DataAccessException {
-        authDAO.clear();
-        gameDAO.clear();
-        userDAO.clear();
+    public void clear() throws ServiceException {
+        try {
+            authDAO.clear();
+            gameDAO.clear();
+            userDAO.clear();
+        } catch (DataAccessException ex) {
+            throw new ServiceException("Internal service error");
+        }
     }
 }

@@ -128,7 +128,7 @@ public class Server {
         gameService.joinGame(request);
     }
 
-    private void clear(Context ctx) throws DataAccessException {
+    private void clear(Context ctx) throws ServiceException {
         clearService.clear();
     }
 }

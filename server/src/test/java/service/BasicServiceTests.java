@@ -237,7 +237,7 @@ public class BasicServiceTests {
 
         try {
             service.clear();
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             Assertions.fail();
         }
 
