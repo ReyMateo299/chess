@@ -46,7 +46,7 @@ public class SQLAuthDAO implements AuthDAO {
     public AuthData getAuth(String authToken) throws DataAccessException {
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
 
             var statement = "SELECT authToken, username FROM auth WHERE authToken = ?";
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -69,7 +69,7 @@ public class SQLAuthDAO implements AuthDAO {
     public boolean deleteAuth(String authToken) throws DataAccessException {
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
             var statement = "DELETE FROM auth WHERE authToken = ?";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);

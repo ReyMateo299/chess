@@ -48,7 +48,7 @@ public class SQLUserDAO implements UserDAO {
         UserData newUser = new UserData(username, password, email);
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
             var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
