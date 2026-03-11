@@ -2,12 +2,14 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.SQLUserDAO;
 import dataaccess.UserDAO;
 
 import model.UserData;
 import model.AuthData;
 
 import org.junit.jupiter.api.Assertions;
+import org.mindrot.jbcrypt.BCrypt;
 import service.exceptions.*;
 import service.requests.*;
 import service.results.*;
@@ -81,6 +83,9 @@ public class UserService {
     }
 
     private boolean isValidPassword(UserData user, String password) {
+        if (userDAO instanceof SQLUserDAO) {
+            return BCrypt.checkpw(password, user.password());
+        }
         return user.password().equals(password);
     }
 

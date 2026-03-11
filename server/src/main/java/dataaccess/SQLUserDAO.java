@@ -2,6 +2,7 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,9 +31,9 @@ public class SQLUserDAO implements UserDAO{
                 preparedStatement.setString(1, username);
                 try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
-                        var password = rs.getString("password");
+                        var hashedPassword = rs.getString("password");
                         var email = rs.getString("email");
-                        return new UserData(username, password, email);
+                        return new UserData(username, hashedPassword, email);
                     }
                 }
             }
@@ -50,8 +51,9 @@ public class SQLUserDAO implements UserDAO{
             conn.setCatalog("chess");
             var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
+                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
                 preparedStatement.setString(1, username);
-                preparedStatement.setString(2, password);
+                preparedStatement.setString(2, hashedPassword);
                 preparedStatement.setString(3, email);
                 preparedStatement.executeUpdate();
             }
