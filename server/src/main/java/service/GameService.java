@@ -86,7 +86,7 @@ public class GameService {
 
     private AuthData checkAuthorization(String authToken) throws ServiceException {
         try {
-            if (authToken.isEmpty()) {
+            if (authToken == null || authToken.isEmpty()) {
                 throw new InvalidAuthenticationException("Error: invalid authentication");
             }
             AuthData auth = authDAO.getAuth(authToken);
