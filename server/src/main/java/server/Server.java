@@ -25,7 +25,7 @@ public class Server {
     private final GameService gameService;
     private final UserService userService;
 
-    private String dataAccessType = "Memory";
+    private String dataAccessType = "Sql";
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -50,9 +50,15 @@ public class Server {
             userDAO = new MemoryUserDAO();
         }
         else {
-            authDAO = null;
-            gameDAO = null;
-            userDAO = null;
+            try {
+                authDAO = new MemoryAuthDAO();
+                gameDAO = new MemoryGameDAO();
+                userDAO = new SQLUserDAO();
+            } catch (DataAccessException e) {
+                authDAO = new MemoryAuthDAO();
+                gameDAO = new MemoryGameDAO();
+                userDAO = new MemoryUserDAO();
+            }
         }
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
