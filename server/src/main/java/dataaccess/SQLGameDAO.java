@@ -58,8 +58,35 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
-    public GameData updateGame(int gameID, String userName, String playerColor) {
-        return new GameData(1, null, null, null, new ChessGame());
+    public GameData updateGame(int gameID, String userName, String playerColor) throws DataAccessException {
+        GameData gameData = getGame(gameID);
+        if (playerColor.equals("WHITE") && gameData.whiteUsername() != null) {
+            return null;
+        }
+        if (playerColor.equals("BLACK") && gameData.blackUsername() != null) {
+            return null;
+        }
+        GameData updatedGame = gameData.addPlayer(playerColor, userName);
+
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
+            var statement = "";
+            if (playerColor.equals("WHITE")) {
+                statement = "UPDATE games SET whiteUsername = ?  WHERE id = ?";
+            } else {
+                statement = "UPDATE games SET blackUsername = ?  WHERE id = ?";
+            }
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, userName);
+                preparedStatement.setInt(2, gameID);
+
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to update games table");
+        }
+        return updatedGame;
+
     }
 
     public GameData getGame(String gameName) throws DataAccessException {
@@ -84,14 +111,38 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new DataAccessException("Unable to access authData table");
+            throw new DataAccessException("Unable to access games table");
         }
 
         return null;
     }
 
-    public GameData getGame(int gameID) {
-        return new GameData(1, null, null, null, new ChessGame());
+    public GameData getGame(int gameID) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
+
+            var statement = """
+                        SELECT id, whiteUsername, blackUsername, gameName, game
+                        FROM games WHERE id = ?
+                    """;
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameID);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("blackUsername");
+                        var gameName = rs.getString("gameName");
+                        var gameString = rs.getString("game");
+                        ChessGame game = new Gson().fromJson(gameString, ChessGame.class);
+                        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to access games table");
+        }
+
+        return null;
     }
 
     public Collection<GameData> listGames() {

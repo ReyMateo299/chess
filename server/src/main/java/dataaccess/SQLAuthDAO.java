@@ -74,7 +74,7 @@ public class SQLAuthDAO implements AuthDAO {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
                 int rowsAffected = preparedStatement.executeUpdate();
-                return rowsAffected == 1;
+                return rowsAffected > 0;
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete authToken");
