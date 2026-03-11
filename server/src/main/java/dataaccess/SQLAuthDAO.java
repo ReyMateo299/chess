@@ -1,9 +1,11 @@
 package dataaccess;
 
+import com.google.gson.Gson;
 import model.AuthData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class SQLAuthDAO implements AuthDAO {
 
@@ -21,8 +23,25 @@ public class SQLAuthDAO implements AuthDAO {
         DatabaseManager.configureDatabase(createStatement);
     }
 
-    public AuthData createAuth(String username) {
-        return new AuthData("authToken", "username");
+    public AuthData createAuth(String username) throws DataAccessException {
+        String authToken = generateToken();
+        AuthData newAuth = new AuthData(authToken, username);
+
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
+            var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
+            String json = new Gson().toJson(newAuth);
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.setString(2, username);
+                preparedStatement.setString(3, json);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to create authToken");
+        }
+
+        return newAuth;
     }
 
     public AuthData getAuth(String authToken) {
@@ -42,5 +61,9 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete auth data: %s", ex);
         }
+    }
+
+    private static String generateToken() {
+        return UUID.randomUUID().toString();
     }
 }
