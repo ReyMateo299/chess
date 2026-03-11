@@ -232,7 +232,7 @@ public class BasicServiceTests {
     @Test
     @Order(13)
     @DisplayName("Clear - Positive")
-    public void clearServiceSuccess() {
+    public void clearServiceSuccess() throws DataAccessException {
         ClearService service = new ClearService(authDAO, gameDAO, userDAO);
 
         try {

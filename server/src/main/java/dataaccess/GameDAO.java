@@ -5,15 +5,15 @@ import model.GameData;
 import java.util.Collection;
 
 public interface GameDAO {
-    Collection<GameData> listGames();
+    Collection<GameData> listGames() throws DataAccessException;
 
-    GameData createGame(String gameName);
+    GameData createGame(String gameName) throws DataAccessException;
 
-    GameData updateGame(int gameID, String userName, String playerColor);
+    GameData updateGame(int gameID, String userName, String playerColor) throws DataAccessException;
 
-    GameData getGame(String gameName);
+    GameData getGame(String gameName) throws DataAccessException;
 
-    GameData getGame(int gameID);
+    GameData getGame(int gameID) throws DataAccessException;
 
-    void clear();
+    void clear() throws DataAccessException;
 }

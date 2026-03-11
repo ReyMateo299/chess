@@ -53,7 +53,7 @@ public class Server {
         else {
             try {
                 authDAO = new SQLAuthDAO();
-                gameDAO = new MemoryGameDAO();
+                gameDAO = new SQLGameDAO();
                 userDAO = new SQLUserDAO();
             } catch (DataAccessException e) {
                 authDAO = new MemoryAuthDAO();
@@ -107,13 +107,13 @@ public class Server {
         userService.logout(logoutRequest);
     }
 
-    private void listGames(Context ctx) throws ServiceException, DataAccessException {
+    private void listGames(Context ctx) throws ServiceException {
         ListGamesRequest listGamesRequest = new ListGamesRequest(ctx.header("authorization"));
         ListGamesResult result = gameService.listGames(listGamesRequest);
         ctx.result(new Gson().toJson(result));
     }
 
-    private void createGame(Context ctx) throws ServiceException, DataAccessException {
+    private void createGame(Context ctx) throws ServiceException {
         String authToken = ctx.header("authorization");
         GameName gameName = new Gson().fromJson(ctx.body(), GameName.class);
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName.gameName());
@@ -121,7 +121,7 @@ public class Server {
         ctx.result(new Gson().toJson(result));
     }
 
-    private void joinGame(Context ctx) throws ServiceException, DataAccessException {
+    private void joinGame(Context ctx) throws ServiceException {
         String authToken = ctx.header("authorization");
         JoinData joinData = new Gson().fromJson(ctx.body(), JoinData.class);
         JoinGameRequest request = new JoinGameRequest(authToken, joinData.playerColor(), joinData.gameID());

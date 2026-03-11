@@ -31,44 +31,56 @@ public class GameService {
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws ServiceException {
-        checkAuthorization(request.authToken());
-        if (request.gameName() == null) {
-            throw new BadRequestException("Error: invalid game name");
+        try {
+            checkAuthorization(request.authToken());
+            if (request.gameName() == null) {
+                throw new BadRequestException("Error: invalid game name");
+            }
+            if (gameDAO.getGame(request.gameName()) != null) {
+                throw new BadRequestException("Error: game name already in use");
+            }
+            GameData newGame = gameDAO.createGame(request.gameName());
+            return new CreateGameResult(newGame.gameID());
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
         }
-        if (gameDAO.getGame(request.gameName()) != null) {
-            throw new BadRequestException("Error: game name already in use");
-        }
-        GameData newGame = gameDAO.createGame(request.gameName());
-        return new CreateGameResult(newGame.gameID());
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ServiceException {
-        checkAuthorization(listGamesRequest.authToken());
-        ArrayList<GameResult> games = new ArrayList<>();
-        for (GameData game : gameDAO.listGames()) {
-            games.add(new GameResult(
-                    game.gameID(),
-                    game.whiteUsername(),
-                    game.blackUsername(),
-                    game.gameName()
-            ));
+        try {
+            checkAuthorization(listGamesRequest.authToken());
+            ArrayList<GameResult> games = new ArrayList<>();
+            for (GameData game : gameDAO.listGames()) {
+                games.add(new GameResult(
+                        game.gameID(),
+                        game.whiteUsername(),
+                        game.blackUsername(),
+                        game.gameName()
+                ));
+            }
+            return new ListGamesResult(games);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
         }
-        return new ListGamesResult(games);
     }
 
     public void joinGame(JoinGameRequest request) throws ServiceException {
-        AuthData authData = checkAuthorization(request.authToken());
-        if (request.gameID() == null || request.playerColor() == null
-                || !colors.contains(request.playerColor())) {
-            throw new BadRequestException("Error: bad request");
-        }
-        GameData gameData = gameDAO.getGame(request.gameID());
-        if (gameData == null) {
-            throw new GameNotFoundException("Error: game not found");
-        }
-        GameData updatedGame = gameDAO.updateGame(request.gameID(), authData.username(), request.playerColor());
-        if (updatedGame == null) {
-            throw new AlreadyTakenException("Error: team already taken");
+        try {
+            AuthData authData = checkAuthorization(request.authToken());
+            if (request.gameID() == null || request.playerColor() == null
+                    || !colors.contains(request.playerColor())) {
+                throw new BadRequestException("Error: bad request");
+            }
+            GameData gameData = gameDAO.getGame(request.gameID());
+            if (gameData == null) {
+                throw new GameNotFoundException("Error: game not found");
+            }
+            GameData updatedGame = gameDAO.updateGame(request.gameID(), authData.username(), request.playerColor());
+            if (updatedGame == null) {
+                throw new AlreadyTakenException("Error: team already taken");
+            }
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
         }
     }
 
