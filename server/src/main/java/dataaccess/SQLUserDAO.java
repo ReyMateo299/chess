@@ -7,7 +7,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SQLUserDAO implements UserDAO{
+public class SQLUserDAO implements UserDAO {
 
     public SQLUserDAO() throws DataAccessException {
         String createStatement = """
