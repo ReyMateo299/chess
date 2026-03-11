@@ -14,7 +14,6 @@ public class SQLUserDAO implements UserDAO{
                     `username` varchar(255) NOT NULL,
                     `password` varchar(255) NOT NULL,
                     `email` varchar(255) NOT NULL,
-                    `json` TEXT DEFAULT NULL,
                     PRIMARY KEY (`username`),
                     INDEX(username)
                 )
@@ -26,13 +25,14 @@ public class SQLUserDAO implements UserDAO{
         try (var conn = DatabaseManager.getConnection()) {
             conn.setCatalog("chess");
 
-            var statement = "SELECT username, json FROM users WHERE username = ?";
+            var statement = "SELECT username, password, email FROM users WHERE username = ?";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 try (var rs = preparedStatement.executeQuery()) {
                     if (rs.next()) {
-                        var json = rs.getString("json");
-                        return new Gson().fromJson(json, UserData.class);
+                        var password = rs.getString("password");
+                        var email = rs.getString("email");
+                        return new UserData(username, password, email);
                     }
                 }
             }
@@ -48,13 +48,11 @@ public class SQLUserDAO implements UserDAO{
 
         try (var conn = DatabaseManager.getConnection()) {
             conn.setCatalog("chess");
-            var statement = "INSERT INTO users (username, password, email, json) VALUES (?, ?, ?, ?)";
-            String json = new Gson().toJson(newUser);
+            var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 preparedStatement.setString(2, password);
                 preparedStatement.setString(3, email);
-                preparedStatement.setString(4, json);
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {

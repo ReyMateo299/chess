@@ -2,6 +2,7 @@ package dataaccess;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.UserData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,7 +15,6 @@ public class SQLAuthDAO implements AuthDAO {
                 CREATE TABLE IF NOT EXISTS  auth (
                     `authToken` varchar(255) NOT NULL,
                     `username` varchar(255) NOT NULL,
-                    `json` TEXT DEFAULT NULL,
                     PRIMARY KEY (`authToken`),
                     INDEX(authToken),
                     INDEX(username)
@@ -29,12 +29,10 @@ public class SQLAuthDAO implements AuthDAO {
 
         try (var conn = DatabaseManager.getConnection()) {
             conn.setCatalog("chess");
-            var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
-            String json = new Gson().toJson(newAuth);
+            var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
                 preparedStatement.setString(2, username);
-                preparedStatement.setString(3, json);
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException ex) {
@@ -44,8 +42,26 @@ public class SQLAuthDAO implements AuthDAO {
         return newAuth;
     }
 
-    public AuthData getAuth(String authToken) {
-        return new AuthData("authToken", "username");
+    public AuthData getAuth(String authToken) throws DataAccessException {
+
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
+
+            var statement = "SELECT authToken, username FROM users WHERE authToken = ?";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        var username = rs.getString("username");
+                        return new AuthData(authToken, username);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to access authData table");
+        }
+
+        return null;
     }
 
     public boolean deleteAuth(String authToken) {
