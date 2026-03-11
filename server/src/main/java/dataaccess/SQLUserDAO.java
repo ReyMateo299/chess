@@ -9,7 +9,17 @@ import java.sql.SQLException;
 public class SQLUserDAO implements UserDAO{
 
     public SQLUserDAO() throws DataAccessException {
-        configureDatabase();
+        String createStatement = """
+                CREATE TABLE IF NOT EXISTS  users (
+                    `username` varchar(255) NOT NULL,
+                    `password` varchar(255) NOT NULL,
+                    `email` varchar(255) NOT NULL,
+                    `json` TEXT DEFAULT NULL,
+                    PRIMARY KEY (`username`),
+                    INDEX(username)
+                )
+                """;
+        DatabaseManager.configureDatabase(createStatement);
     }
 
     public UserData getUser(String username) throws DataAccessException {
@@ -62,31 +72,6 @@ public class SQLUserDAO implements UserDAO{
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete user data: %s", ex);
-        }
-    }
-
-    /**
-     * Creates Auth, Game, and User tables in the database.
-     */
-    public void configureDatabase() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            String createStatement = """
-                    CREATE TABLE IF NOT EXISTS  users (
-                        `username` varchar(255) NOT NULL,
-                        `password` varchar(255) NOT NULL,
-                        `email` varchar(255) NOT NULL,
-                        `json` TEXT DEFAULT NULL,
-                        PRIMARY KEY (`username`),
-                        INDEX(username)
-                    )
-                    """;
-                    // Add ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci?
-            try (var preparedStatement = conn.prepareStatement(createStatement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to configure database: %s", ex);
         }
     }
 }

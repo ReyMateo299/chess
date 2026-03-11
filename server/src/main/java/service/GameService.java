@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
@@ -55,7 +56,7 @@ public class GameService {
         return new ListGamesResult(games);
     }
 
-    public void joinGame(JoinGameRequest request) throws ServiceException{
+    public void joinGame(JoinGameRequest request) throws ServiceException {
         AuthData authData = checkAuthorization(request.authToken());
         if (request.gameID() == null || request.playerColor() == null
                 || !colors.contains(request.playerColor())) {
@@ -71,15 +72,19 @@ public class GameService {
         }
     }
 
-    private AuthData checkAuthorization(String authToken) throws InvalidAuthenticationException {
-        if (authToken.isEmpty()) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
+    private AuthData checkAuthorization(String authToken) throws ServiceException {
+        try {
+            if (authToken.isEmpty()) {
+                throw new InvalidAuthenticationException("Error: invalid authentication");
+            }
+            AuthData auth = authDAO.getAuth(authToken);
+            if (auth == null) {
+                throw new InvalidAuthenticationException("Error: invalid authentication");
+            }
+            return auth;
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
         }
-        AuthData auth = authDAO.getAuth(authToken);
-        if (auth == null) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
-        }
-        return auth;
     }
 
 }

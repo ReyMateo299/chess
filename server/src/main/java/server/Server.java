@@ -52,7 +52,7 @@ public class Server {
         }
         else {
             try {
-                authDAO = new MemoryAuthDAO();
+                authDAO = new SQLAuthDAO();
                 gameDAO = new MemoryGameDAO();
                 userDAO = new SQLUserDAO();
             } catch (DataAccessException e) {
@@ -90,19 +90,19 @@ public class Server {
         ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
 
-    private void register(Context ctx) throws ServiceException, DataAccessException {
+    private void register(Context ctx) throws ServiceException {
         RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
         RegisterResult registerResult = userService.register(registerRequest);
         ctx.result(new Gson().toJson(registerResult));
     }
 
-    private void login(Context ctx) throws ServiceException, DataAccessException {
+    private void login(Context ctx) throws ServiceException {
         LoginRequest loginRequest = new Gson().fromJson(ctx.body(), LoginRequest.class);
         LoginResult loginResult = userService.login(loginRequest);
         ctx.result(new Gson().toJson(loginResult));
     }
 
-    private void logout(Context ctx) throws ServiceException, DataAccessException {
+    private void logout(Context ctx) throws ServiceException {
         LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
         userService.logout(logoutRequest);
     }

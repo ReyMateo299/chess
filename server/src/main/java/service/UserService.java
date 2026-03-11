@@ -23,9 +23,6 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ServiceException {
-        UserData newUser = null;
-        AuthData newAuth = null;
-
         try {
             if (registerRequest.username() == null || registerRequest.password() == null
                     || registerRequest.email() == null) {
@@ -36,42 +33,50 @@ public class UserService {
             }
 
             // should I just pass in a UserData object here?
-            newUser = userDAO.createUser(
+            UserData newUser = userDAO.createUser(
                     registerRequest.username(),
                     registerRequest.password(),
                     registerRequest.email()
             );
-            newAuth = authDAO.createAuth(registerRequest.username());
+            AuthData newAuth = authDAO.createAuth(registerRequest.username());
+            return new RegisterResult(newUser.username(), newAuth.authToken());
+
         } catch (DataAccessException e) {
             throw new ServiceException("Internal Server Error");
         }
-
-        return new RegisterResult(newUser.username(), newAuth.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ServiceException, DataAccessException {
-        if (loginRequest.username() == null || loginRequest.password() == null) {
-            throw new BadRequestException("Error: missing username and/or password");
-        }
-        UserData user = userDAO.getUser(loginRequest.username());
-        if (user == null) {
-            throw new InvalidCredentialsException("Error: username not found");
-        }
-        if (!isValidPassword(user, loginRequest.password())) {
-            throw new InvalidCredentialsException("Error: invalid password");
-        }
+    public LoginResult login(LoginRequest loginRequest) throws ServiceException {
+         try {
+             if (loginRequest.username() == null || loginRequest.password() == null) {
+                 throw new BadRequestException("Error: missing username and/or password");
+             }
+             UserData user = userDAO.getUser(loginRequest.username());
+             if (user == null) {
+                 throw new InvalidCredentialsException("Error: username not found");
+             }
+             if (!isValidPassword(user, loginRequest.password())) {
+                 throw new InvalidCredentialsException("Error: invalid password");
+             }
 
-        AuthData newAuth = authDAO.createAuth(loginRequest.username());
-        return new LoginResult(user.username(), newAuth.authToken());
+             AuthData newAuth = authDAO.createAuth(loginRequest.username());
+             return new LoginResult(user.username(), newAuth.authToken());
+         } catch (DataAccessException e) {
+             throw new ServiceException("Internal Server Error");
+         }
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ServiceException, DataAccessException {
-        if (logoutRequest.authToken().isEmpty()) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
-        }
-        boolean deleteSuccess = authDAO.deleteAuth(logoutRequest.authToken());
-        if (!deleteSuccess) {
-            throw new InvalidAuthenticationException("Error: invalid authentication");
+    public void logout(LogoutRequest logoutRequest) throws ServiceException {
+        try {
+            if (logoutRequest.authToken().isEmpty()) {
+                throw new InvalidAuthenticationException("Error: invalid authentication");
+            }
+            boolean deleteSuccess = authDAO.deleteAuth(logoutRequest.authToken());
+            if (!deleteSuccess) {
+                throw new InvalidAuthenticationException("Error: invalid authentication");
+            }
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
         }
     }
 
