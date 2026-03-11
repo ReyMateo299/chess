@@ -22,22 +22,29 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws ServiceException, DataAccessException {
-        if (registerRequest.username() == null || registerRequest.password() == null
-            || registerRequest.email() == null) {
-            throw new BadRequestException("Error: bad request");
-        }
-        if (userDAO.getUser(registerRequest.username()) != null) {
-            throw new AlreadyTakenException("Error: username already taken");
-        }
+    public RegisterResult register(RegisterRequest registerRequest) throws ServiceException {
+        UserData newUser = null;
+        AuthData newAuth = null;
 
-        // should I just pass in a UserData object here?
-        UserData newUser = userDAO.createUser(
-                registerRequest.username(),
-                registerRequest.password(),
-                registerRequest.email()
-        );
-        AuthData newAuth = authDAO.createAuth(registerRequest.username());
+        try {
+            if (registerRequest.username() == null || registerRequest.password() == null
+                    || registerRequest.email() == null) {
+                throw new BadRequestException("Error: bad request");
+            }
+            if (userDAO.getUser(registerRequest.username()) != null) {
+                throw new AlreadyTakenException("Error: username already taken");
+            }
+
+            // should I just pass in a UserData object here?
+            newUser = userDAO.createUser(
+                    registerRequest.username(),
+                    registerRequest.password(),
+                    registerRequest.email()
+            );
+            newAuth = authDAO.createAuth(registerRequest.username());
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
+        }
 
         return new RegisterResult(newUser.username(), newAuth.authToken());
     }

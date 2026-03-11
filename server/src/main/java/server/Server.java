@@ -77,7 +77,7 @@ public class Server {
     }
 
     // delete this??
-    private void exceptionHandler(Exception ex, Context ctx) {
+    private void exceptionHandler(ServiceException ex, Context ctx) {
         ctx.status(400);
         switch (ex) {
             case BadRequestException bre -> ctx.status(400);
@@ -85,8 +85,7 @@ public class Server {
             case InvalidCredentialsException ice -> ctx.status(401);
             case InvalidAuthenticationException iae -> ctx.status(401);
             case AlreadyTakenException ate -> ctx.status(403);
-            case DataAccessException dae -> ctx.status(500);
-            default -> ctx.status(500);
+            case ServiceException s -> ctx.status(500);
         }
         ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
     }

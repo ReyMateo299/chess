@@ -250,12 +250,7 @@ public class BasicServiceTests {
 
         RegisterRequest request = new RegisterRequest("name", "password", "email");
 
-        RegisterResult result = null;
-        try {
-            result = userService.register(request);
-        } catch (DataAccessException e) {
-            Assertions.fail();
-        }
+        RegisterResult result = userService.register(request);
 
         CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
         Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));
