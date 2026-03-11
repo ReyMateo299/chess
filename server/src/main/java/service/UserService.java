@@ -70,7 +70,7 @@ public class UserService {
 
     public void logout(LogoutRequest logoutRequest) throws ServiceException {
         try {
-            if (logoutRequest.authToken().isEmpty()) {
+            if (logoutRequest.authToken() == null || logoutRequest.authToken().isEmpty()) {
                 throw new InvalidAuthenticationException("Error: invalid authentication");
             }
             boolean deleteSuccess = authDAO.deleteAuth(logoutRequest.authToken());
