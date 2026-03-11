@@ -21,7 +21,7 @@ public class SQLAuthDAO implements AuthDAO {
                     INDEX(username)
                 )
                 """;
-        DatabaseManager.configureDatabase(createStatement);
+        configureDatabase(createStatement);
     }
 
     public AuthData createAuth(String username) throws DataAccessException {
@@ -29,7 +29,7 @@ public class SQLAuthDAO implements AuthDAO {
         AuthData newAuth = new AuthData(authToken, username);
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
             var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
@@ -94,5 +94,16 @@ public class SQLAuthDAO implements AuthDAO {
 
     private static String generateToken() {
         return UUID.randomUUID().toString();
+    }
+
+    static public void configureDatabase(String createStatement) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(createStatement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to configure database: %s", ex);
+        }
     }
 }

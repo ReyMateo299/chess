@@ -27,13 +27,13 @@ public class SQLGameDAO implements GameDAO {
                     INDEX(gameName)
                 )
                 """;
-        DatabaseManager.configureDatabase(createStatement);
+        configureDatabase(createStatement);
     }
 
     public GameData createGame(String gameName) throws DataAccessException {
 
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
             var statement = "INSERT INTO games (gameName, game) VALUES (?, ?)";
             ChessGame game = new ChessGame();
             try (var preparedStatement = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
@@ -178,5 +178,16 @@ public class SQLGameDAO implements GameDAO {
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete game data: %s", ex);
         }
-    };
+    }
+
+    static public void configureDatabase(String createStatement) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(createStatement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to configure database: %s", ex);
+        }
+    }
 }

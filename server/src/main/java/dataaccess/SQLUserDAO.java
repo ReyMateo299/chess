@@ -19,12 +19,12 @@ public class SQLUserDAO implements UserDAO {
                     INDEX(username)
                 )
                 """;
-        DatabaseManager.configureDatabase(createStatement);
+        configureDatabase(createStatement);
     }
 
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
+//            conn.setCatalog("chess");
 
             var statement = "SELECT username, password, email FROM users WHERE username = ?";
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -72,6 +72,17 @@ public class SQLUserDAO implements UserDAO {
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete user data: %s", ex);
+        }
+    }
+
+    static private void configureDatabase(String createStatement) throws DataAccessException {
+        DatabaseManager.createDatabase();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(createStatement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to configure database: %s", ex);
         }
     }
 }

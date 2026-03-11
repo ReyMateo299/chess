@@ -32,16 +32,16 @@ public class DatabaseManager {
     /**
      * Creates Auth, Game, and User tables in the database.
      */
-    static public void configureDatabase(String createStatement) throws DataAccessException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(createStatement)) {
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to configure database: %s", ex);
-        }
-    }
+//    static public void configureDatabase(String createStatement) throws DataAccessException {
+//        DatabaseManager.createDatabase();
+//        try (Connection conn = DatabaseManager.getConnection()) {
+//            try (var preparedStatement = conn.prepareStatement(createStatement)) {
+//                preparedStatement.executeUpdate();
+//            }
+//        } catch (SQLException ex) {
+//            throw new DataAccessException("Unable to configure database: %s", ex);
+//        }
+//    }
 
     /**
      * Create a connection to the database and sets the catalog based upon the
