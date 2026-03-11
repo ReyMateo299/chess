@@ -62,8 +62,32 @@ public class SQLGameDAO implements GameDAO {
         return new GameData(1, null, null, null, new ChessGame());
     }
 
-    public GameData getGame(String gameName) {
-        return new GameData(1, null, null, null, new ChessGame());
+    public GameData getGame(String gameName) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
+
+            var statement = """
+                        SELECT id, whiteUsername, blackUsername, gameName, game
+                        FROM auth WHERE gameName = ?
+                    """;
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, gameName);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        var id = rs.getInt("id");
+                        var whiteUsername = rs.getString("whiteUsername");
+                        var blackUsername = rs.getString("whiteUsername");
+                        var gameString = rs.getString("game");
+                        ChessGame game = new Gson().fromJson(gameString, ChessGame.class);
+                        return new GameData(id, whiteUsername, blackUsername, gameName, game);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            throw new DataAccessException("Unable to access authData table");
+        }
+
+        return null;
     }
 
     public GameData getGame(int gameID) {
