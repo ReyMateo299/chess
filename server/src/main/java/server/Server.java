@@ -25,7 +25,8 @@ public class Server {
     private final GameService gameService;
     private final UserService userService;
 
-    private String dataAccessType = "Sql";
+    private final String dataAccessType = "SQL";
+//    private final String dataAccessType = "MEMORY";
 
     public Server() {
         javalin = Javalin.create(config -> config.staticFiles.add("web"));
@@ -44,7 +45,7 @@ public class Server {
         GameDAO gameDAO;
         UserDAO userDAO;
 
-        if (dataAccessType.equals("Memory")) {
+        if (dataAccessType.equals("MEMORY")) {
             authDAO = new MemoryAuthDAO();
             gameDAO = new MemoryGameDAO();
             userDAO = new MemoryUserDAO();
@@ -76,7 +77,7 @@ public class Server {
     }
 
     // delete this??
-    private void exceptionHandler(ServiceException ex, Context ctx) {
+    private void exceptionHandler(Exception ex, Context ctx) {
         ctx.status(400);
         switch (ex) {
             case BadRequestException bre -> ctx.status(400);
@@ -84,35 +85,36 @@ public class Server {
             case InvalidCredentialsException ice -> ctx.status(401);
             case InvalidAuthenticationException iae -> ctx.status(401);
             case AlreadyTakenException ate -> ctx.status(403);
+            case DataAccessException dae -> ctx.status(500);
             default -> ctx.status(500);
         }
         ctx.result(new Gson().toJson(Map.of("message", ex.getMessage())));
     }
 
-    private void register(Context ctx) throws ServiceException {
+    private void register(Context ctx) throws ServiceException, DataAccessException {
         RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
         RegisterResult registerResult = userService.register(registerRequest);
         ctx.result(new Gson().toJson(registerResult));
     }
 
-    private void login(Context ctx) throws ServiceException {
+    private void login(Context ctx) throws ServiceException, DataAccessException {
         LoginRequest loginRequest = new Gson().fromJson(ctx.body(), LoginRequest.class);
         LoginResult loginResult = userService.login(loginRequest);
         ctx.result(new Gson().toJson(loginResult));
     }
 
-    private void logout(Context ctx) throws ServiceException {
+    private void logout(Context ctx) throws ServiceException, DataAccessException {
         LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
         userService.logout(logoutRequest);
     }
 
-    private void listGames(Context ctx) throws ServiceException {
+    private void listGames(Context ctx) throws ServiceException, DataAccessException {
         ListGamesRequest listGamesRequest = new ListGamesRequest(ctx.header("authorization"));
         ListGamesResult result = gameService.listGames(listGamesRequest);
         ctx.result(new Gson().toJson(result));
     }
 
-    private void createGame(Context ctx) throws ServiceException {
+    private void createGame(Context ctx) throws ServiceException, DataAccessException {
         String authToken = ctx.header("authorization");
         GameName gameName = new Gson().fromJson(ctx.body(), GameName.class);
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName.gameName());
@@ -120,14 +122,14 @@ public class Server {
         ctx.result(new Gson().toJson(result));
     }
 
-    private void joinGame(Context ctx) throws ServiceException {
+    private void joinGame(Context ctx) throws ServiceException, DataAccessException {
         String authToken = ctx.header("authorization");
         JoinData joinData = new Gson().fromJson(ctx.body(), JoinData.class);
         JoinGameRequest request = new JoinGameRequest(authToken, joinData.playerColor(), joinData.gameID());
         gameService.joinGame(request);
     }
 
-    private void clear(Context ctx) {
+    private void clear(Context ctx) throws DataAccessException {
         clearService.clear();
     }
 }

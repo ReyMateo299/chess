@@ -91,7 +91,7 @@ public class BasicServiceTests {
         RegisterResult result = null;
         try {
             result = service.register(request);
-        } catch (ServiceException s) {
+        } catch (Exception s) {
             Assertions.fail();
         }
 
@@ -120,7 +120,7 @@ public class BasicServiceTests {
         RegisterResult result = null;
         try {
             result = userService.register(request);
-        } catch (ServiceException s) {
+        } catch (Exception s) {
             Assertions.fail();
         }
 
@@ -139,7 +139,7 @@ public class BasicServiceTests {
         RegisterResult result = null;
         try {
             result = userService.register(request);
-        } catch (ServiceException s) {
+        } catch (Exception s) {
             Assertions.fail();
         }
 
@@ -193,7 +193,7 @@ public class BasicServiceTests {
         RegisterResult result = null;
         try {
             result = userService.register(request);
-        } catch (ServiceException s) {
+        } catch (Exception s) {
             Assertions.fail();
         }
 
@@ -215,7 +215,7 @@ public class BasicServiceTests {
         RegisterResult result = null;
         try {
             result = userService.register(request);
-        } catch (ServiceException s) {
+        } catch (Exception e) {
             Assertions.fail();
         }
 
@@ -235,7 +235,11 @@ public class BasicServiceTests {
     public void clearServiceSuccess() {
         ClearService service = new ClearService(authDAO, gameDAO, userDAO);
 
-        service.clear();
+        try {
+            service.clear();
+        } catch (DataAccessException e) {
+            Assertions.fail();
+        }
 
         Assertions.assertTrue(gameDAO.listGames().isEmpty());
     }
@@ -245,7 +249,13 @@ public class BasicServiceTests {
         GameService gameService = new GameService(authDAO, gameDAO);
 
         RegisterRequest request = new RegisterRequest("name", "password", "email");
-        RegisterResult result = userService.register(request);
+
+        RegisterResult result = null;
+        try {
+            result = userService.register(request);
+        } catch (DataAccessException e) {
+            Assertions.fail();
+        }
 
         CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
         Assertions.assertDoesNotThrow(() -> gameService.createGame(createGameRequest));

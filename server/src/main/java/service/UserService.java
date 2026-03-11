@@ -1,11 +1,13 @@
 package service;
 
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 
 import model.UserData;
 import model.AuthData;
 
+import org.junit.jupiter.api.Assertions;
 import service.exceptions.*;
 import service.requests.*;
 import service.results.*;
@@ -20,7 +22,7 @@ public class UserService {
         this.userDAO = userDAO;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws ServiceException {
+    public RegisterResult register(RegisterRequest registerRequest) throws ServiceException, DataAccessException {
         if (registerRequest.username() == null || registerRequest.password() == null
             || registerRequest.email() == null) {
             throw new BadRequestException("Error: bad request");
@@ -40,7 +42,7 @@ public class UserService {
         return new RegisterResult(newUser.username(), newAuth.authToken());
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ServiceException {
+    public LoginResult login(LoginRequest loginRequest) throws ServiceException, DataAccessException {
         if (loginRequest.username() == null || loginRequest.password() == null) {
             throw new BadRequestException("Error: missing username and/or password");
         }
@@ -56,7 +58,7 @@ public class UserService {
         return new LoginResult(user.username(), newAuth.authToken());
     }
 
-    public void logout(LogoutRequest logoutRequest) throws ServiceException {
+    public void logout(LogoutRequest logoutRequest) throws ServiceException, DataAccessException {
         if (logoutRequest.authToken().isEmpty()) {
             throw new InvalidAuthenticationException("Error: invalid authentication");
         }
