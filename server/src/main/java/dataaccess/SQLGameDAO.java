@@ -68,7 +68,7 @@ public class SQLGameDAO implements GameDAO {
 
             var statement = """
                         SELECT id, whiteUsername, blackUsername, gameName, game
-                        FROM auth WHERE gameName = ?
+                        FROM games WHERE gameName = ?
                     """;
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, gameName);

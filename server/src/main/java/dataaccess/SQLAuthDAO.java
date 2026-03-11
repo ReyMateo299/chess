@@ -45,37 +45,40 @@ public class SQLAuthDAO implements AuthDAO {
 
     public AuthData getAuth(String authToken) throws DataAccessException {
 
-        ResultSet rs = searchAuthToken(authToken);
-        if (rs == null) {
-            return null;
-        }
+        try (var conn = DatabaseManager.getConnection()) {
+            conn.setCatalog("chess");
 
-        try {
-            var username = rs.getString("username");
-            return new AuthData(authToken, username);
+            var statement = "SELECT authToken, username FROM auth WHERE authToken = ?";
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                try (var rs = preparedStatement.executeQuery()) {
+                    if (rs.next()) {
+                        var username = rs.getString("username");
+                        return new AuthData(authToken, username);
+                    }
+                }
+            }
+
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to access authData table");
         }
+
+        return null;
     }
 
     public boolean deleteAuth(String authToken) throws DataAccessException {
-        ResultSet rs = searchAuthToken(authToken);
-        if (rs == null) {
-            return false;
-        }
 
         try (var conn = DatabaseManager.getConnection()) {
             conn.setCatalog("chess");
             var statement = "DELETE FROM auth WHERE authToken = ?";
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
-                preparedStatement.executeUpdate();
+                int rowsAffected = preparedStatement.executeUpdate();
+                return rowsAffected == 1;
             }
         } catch (SQLException ex) {
             throw new DataAccessException("Unable to delete authToken");
         }
-
-        return true;
     }
 
     public void clear() throws DataAccessException {
