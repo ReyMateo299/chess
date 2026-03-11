@@ -19,48 +19,21 @@ public class BasicServiceTests {
     private static GameDAO gameDAO;
     private static UserDAO userDAO;
 
-//    private static final String dataAccessType = "MEMORY";
-    private static final String dataAccessType = "SQL";
+    private static final String DATA_ACCESS_TYPE = "MEMORY";
 
 
     @BeforeAll
     public static void init() {
-        if (dataAccessType.equals("MEMORY")) {
-            authDAO = new MemoryAuthDAO();
-            gameDAO = new MemoryGameDAO();
-            userDAO = new MemoryUserDAO();
-        }
-        else {
-            try {
-                authDAO = new SQLAuthDAO();
-                gameDAO = new SQLGameDAO();
-                userDAO = new SQLUserDAO();
-            } catch (DataAccessException e) {
-                authDAO = new MemoryAuthDAO();
-                gameDAO = new MemoryGameDAO();
-                userDAO = new MemoryUserDAO();
-            }
-        }
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+        userDAO = new MemoryUserDAO();
     }
 
     @BeforeEach
     public void setup() {
-        if (dataAccessType.equals("MEMORY")) {
-            authDAO = new MemoryAuthDAO();
-            gameDAO = new MemoryGameDAO();
-            userDAO = new MemoryUserDAO();
-        }
-        else {
-            try {
-                authDAO.clear();
-                gameDAO.clear();
-                userDAO.clear();
-            } catch (DataAccessException e) {
-                authDAO = new MemoryAuthDAO();
-                gameDAO = new MemoryGameDAO();
-                userDAO = new MemoryUserDAO();
-            }
-        }
+        authDAO = new MemoryAuthDAO();
+        gameDAO = new MemoryGameDAO();
+        userDAO = new MemoryUserDAO();
     }
 
     @Test

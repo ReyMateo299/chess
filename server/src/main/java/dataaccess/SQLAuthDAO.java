@@ -95,24 +95,4 @@ public class SQLAuthDAO implements AuthDAO {
     private static String generateToken() {
         return UUID.randomUUID().toString();
     }
-
-    private static ResultSet searchAuthToken(String authToken) throws DataAccessException{
-        try (var conn = DatabaseManager.getConnection()) {
-            conn.setCatalog("chess");
-
-            var statement = "SELECT authToken, username FROM auth WHERE authToken = ?";
-            try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, authToken);
-                try (var rs = preparedStatement.executeQuery()) {
-                    if (rs.next()) {
-                        return rs;
-                    }
-                }
-            }
-        } catch (SQLException ex) {
-            throw new DataAccessException("Unable to access authData table");
-        }
-
-        return null;
-    }
 }
