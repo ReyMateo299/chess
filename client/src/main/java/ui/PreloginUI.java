@@ -11,20 +11,21 @@ import requests.*;
 import results.*;
 import static ui.EscapeSequences.*;
 
-public class PreloginUI implements UI {
+public class PreloginUI {
     private final ServerFacade server;
     private State nextState;
 
     public PreloginUI(ServerFacade server) {
         this.server = server;
-        this.nextState = State.PRELOGIN;
     }
 
     public State run() {
-        System.out.println("👑 Welcome to 240 Chess! Type help to get started. 👑");
+        System.out.println(RESET_TEXT_COLOR + "👑 Welcome to 240 Chess! Type help to get started. 👑");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
+
+        nextState = State.PRELOGIN;
         while (nextState == State.PRELOGIN) {
             printPrompt();
             String line = scanner.nextLine();
@@ -63,7 +64,7 @@ public class PreloginUI implements UI {
             nextState = State.POSTLOGIN;
             return "You successfully registered as user: " + result.username();
         }
-        throw new ResponseException("Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException("Expected form: register <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     private String login(String... params) throws ResponseException {
@@ -73,7 +74,7 @@ public class PreloginUI implements UI {
             nextState = State.POSTLOGIN;
             return "You successfully logged in as user: " + result.username();
         }
-        throw new ResponseException("Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException("Expected from: login <USERNAME> <PASSWORD>");
     }
 
     private String quit() {

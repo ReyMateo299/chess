@@ -26,7 +26,7 @@ public class Client {
             switch (state) {
                 case PRELOGIN -> state = preloginUI.run();
                 case POSTLOGIN -> state = postloginUI.run();
-//                case GAMEPLAY -> state = gameplayUI.run();
+                case GAMEPLAY -> state = gameplayUI.run();
             }
         }
         System.out.println();

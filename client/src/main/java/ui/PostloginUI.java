@@ -4,19 +4,22 @@ import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
 import client.State;
+import requests.CreateGameRequest;
+import requests.RegisterRequest;
+import results.CreateGameResult;
+import results.RegisterResult;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class PostloginUI implements UI {
+public class PostloginUI {
     private final ServerFacade server;
     private State nextState;
 
     public PostloginUI(ServerFacade server) {
         this.server = server;
-        this.nextState = State.POSTLOGIN;
     }
 
     public State run() {
@@ -24,7 +27,9 @@ public class PostloginUI implements UI {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (nextState == State.PRELOGIN) {
+
+        nextState = State.POSTLOGIN;
+        while (nextState == State.POSTLOGIN) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -45,8 +50,8 @@ public class PostloginUI implements UI {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-//                case "logout" -> logout();
-//                case "create" -> createGame(params);
+                case "logout" -> logout();
+                case "create" -> createGame(params);
 //                case "list" -> listGames();
 //                case "play" -> joinGame(params);
 //                case "observe" -> observeGame(params);
@@ -56,6 +61,20 @@ public class PostloginUI implements UI {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    private String logout() {
+        nextState = State.PRELOGIN;
+        return "Logging out...\n";
+    }
+
+    private String createGame(String... params) throws ResponseException {
+        if (params.length >= 2) {
+            CreateGameRequest request = new CreateGameRequest(params[0], params[1]);
+//            CreateGameResult result = server.createGame(request);
+//            return "Successfully created game: " + result.ID();
+        }
+        throw new ResponseException("Expected form: create <NAME>");
     }
 
     private String quit() {
