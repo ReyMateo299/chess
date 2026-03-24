@@ -1,7 +1,7 @@
 package client;
 
-import requests.RegisterRequest;
-import results.RegisterResult;
+import requests.*;
+import results.*;
 
 import java.net.http.HttpClient;
 
@@ -17,5 +17,9 @@ public class ServerFacade {
 
     public RegisterResult register(RegisterRequest request) {
         return new RegisterResult(request.username(), "testAuth");
+    }
+
+    public LoginResult login(LoginRequest request) {
+        return new LoginResult(request.username(), "testAuth");
     }
 }

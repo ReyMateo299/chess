@@ -8,35 +8,27 @@ import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
-    private UI currUI;
-//    private State state = State.PRELOGIN;
+    public State state;
+    private PreloginUI preloginUI;
+    private PostloginUI postloginUI;
+    private GameplayUI gameplayUI;
 
     public Client(String serverUrl) throws Exception {
         server = new ServerFacade(serverUrl);
-        currUI = new PreloginUI(server);
+        state = State.PRELOGIN;
+        preloginUI = new PreloginUI(server);
+        postloginUI = new PostloginUI(server);
+        gameplayUI = new GameplayUI(server);
     }
 
     public void run() {
-        System.out.println("♕ Welcome to 240 Chess! Type help to get started");
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = currUI.eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+        while (state != State.QUIT) {
+            switch (state) {
+                case PRELOGIN -> state = preloginUI.run();
+                case POSTLOGIN -> state = postloginUI.run();
+//                case GAMEPLAY -> state = gameplayUI.run();
             }
         }
         System.out.println();
-    }
-
-    private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 }
