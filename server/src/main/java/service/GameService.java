@@ -3,17 +3,16 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
-import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import service.exceptions.*;
 
-import service.requests.CreateGameRequest;
-import service.requests.JoinGameRequest;
-import service.requests.ListGamesRequest;
-import service.results.CreateGameResult;
-import service.results.GameResult;
-import service.results.ListGamesResult;
+import requests.CreateGameRequest;
+import requests.JoinGameRequest;
+import requests.ListGamesRequest;
+import results.CreateGameResult;
+import results.GameResult;
+import results.ListGamesResult;
 
 import java.util.ArrayList;
 import java.util.Set;

@@ -1,9 +1,8 @@
-package service.results;
+package results;
 
-import service.results.GameResult;
+import results.GameResult;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 public record ListGamesResult(Collection<GameResult> games) {
 }

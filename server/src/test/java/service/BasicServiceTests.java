@@ -7,8 +7,8 @@ import passoff.model.TestUser;
 import passoff.server.TestServerFacade;
 import server.Server;
 import service.exceptions.*;
-import service.requests.*;
-import service.results.*;
+import requests.*;
+import results.*;
 
 import java.util.Collection;
 import java.util.List;

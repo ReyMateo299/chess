@@ -11,8 +11,8 @@ import model.AuthData;
 import org.junit.jupiter.api.Assertions;
 import org.mindrot.jbcrypt.BCrypt;
 import service.exceptions.*;
-import service.requests.*;
-import service.results.*;
+import requests.*;
+import results.*;
 
 public class UserService {
 

@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import service.requests.*;
-import service.results.*;
+import requests.*;
+import results.*;
 import service.exceptions.*;
 
 import service.ClearService;

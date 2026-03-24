@@ -8,10 +8,10 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 import service.exceptions.*;
-import service.requests.*;
-import service.results.GameResult;
-import service.results.ListGamesResult;
-import service.results.RegisterResult;
+import requests.*;
+import results.GameResult;
+import results.ListGamesResult;
+import results.RegisterResult;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
