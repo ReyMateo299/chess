@@ -13,17 +13,19 @@ import static ui.EscapeSequences.*;
 
 public class PreloginUI implements UI {
     private final ServerFacade server;
+    private State nextState;
 
     public PreloginUI(ServerFacade server) {
         this.server = server;
+        this.nextState = State.PRELOGIN;
     }
 
     public State run() {
-        System.out.println("♕ Welcome to 240 Chess! Type help to get started");
+        System.out.println("👑 Welcome to 240 Chess! Type help to get started. 👑");
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
-        while (!result.equals("quit")) {
+        while (nextState == State.PRELOGIN) {
             printPrompt();
             String line = scanner.nextLine();
 
@@ -35,7 +37,7 @@ public class PreloginUI implements UI {
                 System.out.print(msg);
             }
         }
-        return State.QUIT;
+        return nextState;
     }
 
     public String eval(String input) {
@@ -46,7 +48,7 @@ public class PreloginUI implements UI {
             return switch (cmd) {
                 case "register" -> register(params);
                 case "login" -> login(params);
-                case "quit" -> "quit";
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -58,6 +60,7 @@ public class PreloginUI implements UI {
         if (params.length >= 3) {
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = server.register(request);
+            nextState = State.POSTLOGIN;
             return "You successfully registered as user: " + result.username();
         }
         throw new ResponseException("Expected: <USERNAME> <PASSWORD> <EMAIL>");
@@ -67,21 +70,27 @@ public class PreloginUI implements UI {
         if (params.length >= 2 ) {
             LoginRequest request = new LoginRequest(params[0], params[1]);
             LoginResult result = server.login(request);
+            nextState = State.POSTLOGIN;
             return "You successfully logged in as user: " + result.username();
         }
         throw new ResponseException("Expected: <USERNAME> <PASSWORD>");
     }
 
+    private String quit() {
+        nextState = State.QUIT;
+        return "Thanks for playing! Exiting the application...";
+    }
+
     private String help() {
         return """
-                - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                - login <USERNAME> <PASSWORD> - to play chess
-                - quit - playing chess
-                - help - with possible commands
+                - register <USERNAME> <PASSWORD> <EMAIL> -> to create an account
+                - login <USERNAME> <PASSWORD> -> to play chess
+                - quit -> playing chess
+                - help -> with possible commands
                 """;
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
