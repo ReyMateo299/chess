@@ -3,12 +3,15 @@ package ui;
 import client.Client;
 
 import java.util.Scanner;
+import java.util.Arrays;
 
 import static ui.EscapeSequences.*;
 
-public class PreloginUI {
+public class PreloginUI implements UI {
 
-    public static void run() {
+    public PreloginUI() { }
+
+    public void run() {
         System.out.println("♕ Welcome to 240 Chess! Type help to get started");
 
         Scanner scanner = new Scanner(System.in);
@@ -28,24 +31,33 @@ public class PreloginUI {
         System.out.println();
     }
 
-    public static String eval(String input) {
-//        try {
-//            String[] tokens = input.toLowerCase().split(" ");
-//            String cmd = (tokens.length > 0) ? tokens[0] : "help";
-//            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-//            return switch (cmd) {
-//                case "signin" -> signIn(params);
-//                case "rescue" -> rescuePet(params);
-//                case "list" -> listPets();
-//                case "signout" -> signOut();
-//                case "adopt" -> adoptPet(params);
-//                case "adoptall" -> adoptAllPets();
-//                case "quit" -> "quit";
-//                default -> help();
-//            };
-//        } catch (ResponseException ex) {
-//            return ex.getMessage();
+    public String eval(String input) {
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+//                case "register" -> doStuff(params);
+//                case "login" -> doStuff(params);
+                case "quit" -> "quit";
+                default -> help();
+            };
+        } catch (Exception ex) {
+            return ex.getMessage();
+        }
+
+//        if (input.equals("quit")) {
+//            return "quit";
 //        }
-        return "Hello World";
+//        return "Hello World";
+    }
+
+    private String help() {
+        return """
+                - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
+                - login <USERNAME> <PASSWORD> - to play chess
+                - quit - playing chess
+                - help - with possible commands
+                """;
     }
 }

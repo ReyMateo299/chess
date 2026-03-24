@@ -2,7 +2,10 @@
   <dictionary name="project">
     <words>
       <w>Orthogonals</w>
+      <w>Postlogin</w>
       <w>Prelogin</w>
+      <w>postlogin</w>
+      <w>prelogin</w>
     </words>
   </dictionary>
 </component>
