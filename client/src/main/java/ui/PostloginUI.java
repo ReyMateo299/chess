@@ -1,33 +1,17 @@
 package ui;
 
 import client.Client;
+import client.ServerFacade;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 public class PostloginUI implements UI {
+    private final ServerFacade server;
 
-    public PostloginUI() {}
-
-    public void run() {
-        System.out.println("♕ Welcome to 240 Chess! Type help to get started");
-
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
-        while (!result.equals("quit")) {
-            Client.printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
-        }
-        System.out.println();
+    public PostloginUI(ServerFacade server) {
+        this.server = server;
     }
 
     public String eval(String input) {
