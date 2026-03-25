@@ -38,6 +38,7 @@ public class PreloginUI {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "quit" -> quit();
+                case "clear" -> clear();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -81,5 +82,11 @@ public class PreloginUI {
 
     private void printPrompt() {
         System.out.print("\n\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    private UIResult clear() throws ResponseException {
+        String message = "Clearing database...";
+        server.clear();
+        return new UIResult(message, State.PRELOGIN, null);
     }
 }
