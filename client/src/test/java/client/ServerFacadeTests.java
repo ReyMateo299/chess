@@ -219,7 +219,12 @@ public class ServerFacadeTests {
         Assertions.assertDoesNotThrow(() -> facade.joinGame(joinRequest));
 
         JoinGameRequest badRequest = new JoinGameRequest(result.authToken(), "WHITE", 1);
-        Assertions.assertThrows(AlreadyTakenException.class, () -> facade.joinGame(badRequest));
+
+        try {
+            facade.joinGame(badRequest);
+        } catch (ResponseException ex) {
+            Assertions.assertEquals("Error: team already taken", ex.getMessage());
+        }
     }
 
     @Test

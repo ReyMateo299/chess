@@ -42,7 +42,7 @@ public class ServerFacade {
 
     public void logout(LogoutRequest request) throws ResponseException {
         var path = "/session";
-        var httpRequest = buildRequest("DELETE", path, request);
+        var httpRequest = buildRequestAuthtoken("DELETE", path, request, request.authToken());
         var response = sendRequest(httpRequest);
         handleResponse(response, null);
     }
@@ -62,7 +62,10 @@ public class ServerFacade {
     }
 
     public void joinGame(JoinGameRequest request) throws ResponseException {
-
+        var path = "/game";
+        var httpRequest = buildRequestAuthtoken("PUT", path, request, request.authToken());
+        var response = sendRequest(httpRequest);
+        handleResponse(response, null);
     }
 
     public void clear() throws ResponseException {
