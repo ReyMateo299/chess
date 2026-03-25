@@ -48,7 +48,7 @@ public class PreloginUI {
         if (params.length >= 3) {
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = server.register(request);
-            String message = "You successfully registered as user: " + result.username();
+            String message = "You successfully registered as user: " + result.username() + ". Type help to continue.";
             return new UIResult(message, State.POSTLOGIN, result.authToken());
         }
         throw new ResponseException("Expected form: register <USERNAME> <PASSWORD> <EMAIL>");
@@ -58,7 +58,7 @@ public class PreloginUI {
         if (params.length >= 2 ) {
             LoginRequest request = new LoginRequest(params[0], params[1]);
             LoginResult result = server.login(request);
-            String message = "You successfully logged in as user: " + result.username();
+            String message = "You successfully logged in as user: " + result.username() + ". Type help to continue.";
             return new UIResult(message, State.POSTLOGIN, result.authToken());
         }
         throw new ResponseException("Expected from: login <USERNAME> <PASSWORD>");
