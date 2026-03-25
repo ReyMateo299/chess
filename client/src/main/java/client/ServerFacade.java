@@ -41,7 +41,10 @@ public class ServerFacade {
     }
 
     public void logout(LogoutRequest request) throws ResponseException {
-
+        var path = "/session";
+        var httpRequest = buildRequest("DELETE", path, request);
+        var response = sendRequest(httpRequest);
+        handleResponse(response, null);
     }
 
     public ListGamesResult listGames(ListGamesRequest request) throws ResponseException {

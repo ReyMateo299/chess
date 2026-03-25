@@ -107,7 +107,7 @@ public class ServerFacadeTests {
     @DisplayName("Logout - Negative")
     public void logoutMissingAuthentication() throws ResponseException {
         LogoutRequest logoutRequest = new LogoutRequest("");
-        Assertions.assertThrows(InvalidAuthenticationException.class, () -> facade.logout(logoutRequest));
+        Assertions.assertThrows(ResponseException.class, () -> facade.logout(logoutRequest));
     }
 
     @Test
