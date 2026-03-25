@@ -32,7 +32,7 @@ public class GameplayUI {
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
-//                case "observe" -> observeGame(params);
+//            case "observe" -> observeGame(params);
             case "quit" -> quit();
             default -> help();
         };
