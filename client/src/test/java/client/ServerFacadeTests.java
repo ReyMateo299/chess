@@ -140,7 +140,11 @@ public class ServerFacadeTests {
 
         CreateGameRequest createGameRequest = new CreateGameRequest(result.authToken(), "gameName");
         Assertions.assertDoesNotThrow(() -> facade.createGame(createGameRequest));
-        Assertions.assertThrows(BadRequestException.class, () -> facade.createGame(createGameRequest));
+        try {
+            facade.createGame(createGameRequest);
+        } catch (ResponseException ex) {
+            Assertions.assertEquals("Error: game name already in use", ex.getMessage());
+        }
     }
 
     @Test

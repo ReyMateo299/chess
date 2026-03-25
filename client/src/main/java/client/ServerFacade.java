@@ -48,14 +48,17 @@ public class ServerFacade {
     }
 
     public ListGamesResult listGames(ListGamesRequest request) throws ResponseException {
-        return new ListGamesResult(List.of(new GameResult(
-                1, "white", "black", "gameName"
-                ))
-        );
+        var path = "/game";
+        var httpRequest = buildRequestAuthtoken("GET", path, request, request.authToken());
+        var response = sendRequest(httpRequest);
+        return handleResponse(response, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
-        return new CreateGameResult(1);
+        var path = "/game";
+        var httpRequest = buildRequestAuthtoken("POST", path, request, request.authToken());
+        var response = sendRequest(httpRequest);
+        return handleResponse(response, CreateGameResult.class);
     }
 
     public void joinGame(JoinGameRequest request) throws ResponseException {
@@ -73,6 +76,17 @@ public class ServerFacade {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
+        if (body != null) {
+            request.setHeader("Content-Type", "application/json");
+        }
+        return request.build();
+    }
+
+    private HttpRequest buildRequestAuthtoken(String method, String path, Object body, String auth) {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + path))
+                .method(method, makeRequestBody(body))
+                .header("Authorization", auth);
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
         }
