@@ -131,36 +131,36 @@ public class ServerFacadeTests {
 
     @Test
     @Order(9)
-    @DisplayName("List Games - Positive")
-    public void listGamesSuccess() throws ResponseException {
-        ListGamesResult listResult = null;
-        try {
-            listResult = setupListTest();
-        } catch (ServiceException s) {
-            Assertions.fail();
-        }
-
-        ListGamesResult expected = new ListGamesResult(List.of(new GameResult(
-                1, null, null, "gameName"
-        )));
-        Assertions.assertEquals(listResult.games(), expected.games());
-    }
-
-    @Test
-    @Order(10)
     @DisplayName("List Games - Negative (Empty fields are null not strings")
     public void listGamesFailure() throws ResponseException {
         ListGamesResult listResult = null;
         try {
             listResult = setupListTest();
         } catch (ServiceException s) {
-            Assertions.fail();
+            throw new ResponseException(s.getMessage());
         }
 
         ListGamesResult expectedFalse = new ListGamesResult(List.of(new GameResult(
                 1, "", "", "gameName"
         )));
         Assertions.assertNotEquals(listResult.games(), expectedFalse.games());
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("List Games - Positive")
+    public void listGamesSuccess() throws ResponseException {
+        ListGamesResult listResult = null;
+        try {
+            listResult = setupListTest();
+        } catch (ServiceException s) {
+            throw new ResponseException(s.getMessage());
+        }
+
+        ListGamesResult expected = new ListGamesResult(List.of(new GameResult(
+                1, null, null, "gameName"
+        )));
+        Assertions.assertEquals(listResult.games(), expected.games());
     }
 
     @Test
