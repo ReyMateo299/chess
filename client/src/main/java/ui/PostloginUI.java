@@ -104,7 +104,8 @@ public class PostloginUI {
                 throw new ResponseException("Invalid input: " + params[0] + " - Game not found.");
             }
 
-            JoinGameRequest request = new JoinGameRequest(authToken, params[1].toUpperCase(), gameID);
+            int realGameID = listedGames.get(gameID).gameID();
+            JoinGameRequest request = new JoinGameRequest(authToken, params[1].toUpperCase(), realGameID);
             server.joinGame(request);
             String message = "Successfully joined game: " + params[0] + "\n" +
                     ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
