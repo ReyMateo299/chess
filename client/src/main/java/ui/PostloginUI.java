@@ -157,77 +157,76 @@ public class PostloginUI {
 
     private String printChessBoard(String color) {
         StringBuilder sb = new StringBuilder();
+        sb.append(printLetterRow(color)).append(nextLine());
 
-        sb.append(printLetterRow(color));
-        sb.append(nextLine());
         if (color.equals("WHITE")) {
             sb.append(printCheckersWhite());
         } else {
             sb.append(printCheckersBlack());
         }
 
-        sb.append(printLetterRow(color));
-        sb.append(nextLine());
-
+        sb.append(printLetterRow(color)).append(nextLine());
         return sb.toString();
     }
 
     private String printCheckersWhite() {
         StringBuilder sb = new StringBuilder();
-
         sb.append(SET_BORDER_CONFIGS).append(" 8 ");
-        sb.append(SET_TEXT_COLOR_BLUE).append(printLastRowCheckers("WHITE"));
+        sb.append(SET_TEXT_COLOR_BLUE).append(printLastRowCheckers("WHITE", "WHITE"));
         sb.append(SET_BORDER_CONFIGS).append(" 8 ").append(nextLine());
 
         sb.append(SET_BORDER_CONFIGS).append(" 7 ");
-        sb.append(SET_TEXT_COLOR_BLUE).append(printPawns("BLACK"));
+        sb.append(SET_TEXT_COLOR_BLUE).append(printRow("BLACK", " P "));
         sb.append(SET_BORDER_CONFIGS).append(" 7 ").append(nextLine());
 
-        int i = 0;
-        String[] rows = {" 6 ", " 5 ", " 4 ", " 3 "};
-        String currTile = "WHITE";
-        while (i < 4) {
-            sb.append(SET_BORDER_CONFIGS).append(rows[i]);
-            sb.append(printEmptyRow(currTile));
-            sb.append(SET_BORDER_CONFIGS).append(rows[i]).append(nextLine());
-            currTile = swapTile(currTile);
-            i++;
-        }
+        sb.append(printEmptyRows(new String[]{" 6 ", " 5 ", " 4 ", " 3 "}));
 
         sb.append(SET_BORDER_CONFIGS).append(" 2 ");
-        sb.append(SET_TEXT_COLOR_RED).append(printPawns("WHITE"));
+        sb.append(SET_TEXT_COLOR_RED).append(printRow("WHITE", " P "));
         sb.append(SET_BORDER_CONFIGS).append(" 2 ").append(nextLine());
 
         sb.append(SET_BORDER_CONFIGS).append(" 1 ");
-        sb.append(SET_TEXT_COLOR_RED).append(printLastRowCheckers("BLACK"));
+        sb.append(SET_TEXT_COLOR_RED).append(printLastRowCheckers("BLACK", "WHITE"));
         sb.append(SET_BORDER_CONFIGS).append(" 1 ").append(nextLine());
 
         return sb.toString();
     }
 
     private String printCheckersBlack() {
-        return "HELLO";
+        StringBuilder sb = new StringBuilder();
+        sb.append(SET_BORDER_CONFIGS).append(" 1 ");
+        sb.append(SET_TEXT_COLOR_RED).append(printLastRowCheckers("WHITE", "BLACK"));
+        sb.append(SET_BORDER_CONFIGS).append(" 1 ").append(nextLine());
+
+        sb.append(SET_BORDER_CONFIGS).append(" 2 ");
+        sb.append(SET_TEXT_COLOR_RED).append(printRow("BLACK", " P "));
+        sb.append(SET_BORDER_CONFIGS).append(" 2 ").append(nextLine());
+
+        sb.append(printEmptyRows(new String[]{" 3 ", " 4 ", " 5 ", " 6 "}));
+
+        sb.append(SET_BORDER_CONFIGS).append(" 7 ");
+        sb.append(SET_TEXT_COLOR_BLUE).append(printRow("WHITE", " P "));
+        sb.append(SET_BORDER_CONFIGS).append(" 7 ").append(nextLine());
+
+        sb.append(SET_BORDER_CONFIGS).append(" 8 ");
+        sb.append(SET_TEXT_COLOR_BLUE).append(printLastRowCheckers("BLACK", "BLACK"));
+        sb.append(SET_BORDER_CONFIGS).append(" 8 ").append(nextLine());
+
+        return sb.toString();
     }
 
-    private String printLastRowCheckers(String startingTile) {
-        String currTile = startingTile;
-        StringBuilder result = new StringBuilder();
-        String[] pieces = {"R", "N", "B", "Q", "K", "B", "N", "R"};
+    private String printEmptyRows(String[] rows) {
+        StringBuilder sb = new StringBuilder();
         int i = 0;
-
-        while (i < 8) {
-            if (currTile.equals("BLACK")) {
-                result.append(SET_BG_COLOR_BLACK);
-                result.append(pieces[i]);
-                currTile = "WHITE";
-            } else {
-                result.append(SET_BG_COLOR_WHITE);
-                result.append(pieces[i]);
-                currTile = "BLACK";
-            }
+        String currTile = "WHITE";
+        while (i < 4) {
+            sb.append(SET_BORDER_CONFIGS).append(rows[i]);
+            sb.append(printRow(currTile, "   "));
+            sb.append(SET_BORDER_CONFIGS).append(rows[i]).append(nextLine());
+            currTile = swapTile(currTile);
             i++;
         }
-        return result.toString();
+        return sb.toString();
     }
 
     private String printLetterRow(String color) {
@@ -237,16 +236,19 @@ public class PostloginUI {
         return SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    ";
     }
 
-    private String printPawns(String startingTile) {
+    private String printRow(String startingTile, String tile) {
         String currTile = startingTile;
         StringBuilder result = new StringBuilder();
         int i = 0;
+
         while (i < 8) {
             if (currTile.equals("BLACK")) {
-                result.append(SET_BG_COLOR_BLACK + " P ");
+                result.append(SET_BG_COLOR_BLACK);
+                result.append(tile);
                 currTile = "WHITE";
             } else {
-                result.append(SET_BG_COLOR_WHITE + " P ");
+                result.append(SET_BG_COLOR_WHITE);
+                result.append(tile);
                 currTile = "BLACK";
             }
             i++;
@@ -254,16 +256,26 @@ public class PostloginUI {
         return result.toString();
     }
 
-    private String printEmptyRow(String startingTile) {
+    private String printLastRowCheckers(String startingTile, String color) {
         String currTile = startingTile;
         StringBuilder result = new StringBuilder();
+        String[] tiles;
+        if (color.equals("WHITE")) {
+            tiles = new String[]{" R ", " N ", " B ", " Q ", " K ", " B ", " N ", " R "};
+        } else {
+            tiles = new String[]{" R ", " N ", " B ", " K ", " Q ", " B ", " N ", " R "};
+        }
+
         int i = 0;
+
         while (i < 8) {
             if (currTile.equals("BLACK")) {
-                result.append(SET_BG_COLOR_BLACK + "   ");
+                result.append(SET_BG_COLOR_BLACK);
+                result.append(tiles[i]);
                 currTile = "WHITE";
             } else {
-                result.append(SET_BG_COLOR_WHITE + "   ");
+                result.append(SET_BG_COLOR_WHITE);
+                result.append(tiles[i]);
                 currTile = "BLACK";
             }
             i++;
