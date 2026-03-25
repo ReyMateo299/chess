@@ -17,34 +17,34 @@ public class ServerFacade {
 
     // Build request/result instances here
 
-    public RegisterResult register(RegisterRequest request) {
+    public RegisterResult register(RegisterRequest request) throws ResponseException {
         return new RegisterResult(request.username(), "testAuth");
     }
 
-    public LoginResult login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) throws ResponseException {
         return new LoginResult(request.username(), "testAuth");
     }
 
-    public void logout(LogoutRequest request) {
+    public void logout(LogoutRequest request) throws ResponseException {
 
     }
 
-    public ListGamesResult listGames(ListGamesRequest request) {
+    public ListGamesResult listGames(ListGamesRequest request) throws ResponseException {
         return new ListGamesResult(List.of(new GameResult(
                 1, "white", "black", "gameName"
                 ))
         );
     }
 
-    public CreateGameResult createGame(CreateGameRequest request) {
+    public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
         return new CreateGameResult(1);
     }
 
-    public void joinGame(JoinGameRequest request) {
+    public void joinGame(JoinGameRequest request) throws ResponseException {
 
     }
 
-    public void clear() {
+    public void clear() throws ResponseException {
 
     }
 }

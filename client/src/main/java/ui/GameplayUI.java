@@ -19,7 +19,7 @@ public class GameplayUI {
         this.scanner = new Scanner(System.in);
     }
 
-    public UIResult run() {
+    public UIResult run(String authToken) {
         printPrompt();
         String line = scanner.nextLine();
         UIResult uiResult = eval(line);

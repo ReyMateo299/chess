@@ -29,18 +29,15 @@ public class Client {
             switch (state) {
                 case PRELOGIN -> result = preloginUI.run();
                 case POSTLOGIN -> result = postloginUI.run(authToken);
-                case GAMEPLAY -> result = gameplayUI.run();
+                case GAMEPLAY -> result = gameplayUI.run(authToken);
             }
             updateVariables(result);
         }
-        System.out.println(result);
+        System.out.println();
     }
 
     private void updateVariables(UIResult result) {
         state = result.nextState();
-
-        if (authToken == null && result.authToken() != null) {
-            authToken = result.authToken();
-        }
+        authToken = result.authToken();
     }
 }
