@@ -87,8 +87,13 @@ public class PostloginUI {
             newListedGames.add(game);
             i++;
         }
-        message.deleteCharAt(message.length() - 1);
+
         listedGames = newListedGames;
+
+        if (listedGames.isEmpty()) {
+            return new UIResult("No existing games.", State.POSTLOGIN, authToken);
+        }
+
         return new UIResult(message.toString(), State.POSTLOGIN, authToken);
     }
 
