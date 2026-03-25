@@ -78,7 +78,7 @@ public class ServerFacadeTests {
                 "name", "password", "email")));
 
         LoginRequest loginRequest = new LoginRequest("name", "wrongPassword");
-        Assertions.assertThrows(InvalidCredentialsException.class, () -> facade.login(loginRequest));
+        Assertions.assertThrows(ResponseException.class, () -> facade.login(loginRequest));
         try {
             facade.login(loginRequest);
         } catch (ResponseException ex) {

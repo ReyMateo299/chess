@@ -34,7 +34,10 @@ public class ServerFacade {
     }
 
     public LoginResult login(LoginRequest request) throws ResponseException {
-        return new LoginResult(request.username(), "testAuth");
+        var path = "/session";
+        var httpRequest = buildRequest("POST", path, request);
+        var response = sendRequest(httpRequest);
+        return handleResponse(response, LoginResult.class);
     }
 
     public void logout(LogoutRequest request) throws ResponseException {
