@@ -1,9 +1,7 @@
 package ui;
 
-import client.ResponseException;
 import client.ServerFacade;
 import client.State;
-import requests.CreateGameRequest;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -13,6 +11,7 @@ import static ui.EscapeSequences.*;
 public class GameplayUI {
     private final ServerFacade server;
     private Scanner scanner;
+    private String authToken;
 
     public GameplayUI(ServerFacade server) {
         this.server = server;
@@ -31,11 +30,11 @@ public class GameplayUI {
         String[] tokens = input.toLowerCase().split(" ");
         String cmd = (tokens.length > 0) ? tokens[0] : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-        return switch (cmd) {
+//        return switch (cmd) {
 //            case "observe" -> observeGame(params);
-            case "quit" -> quit();
-            default -> help();
-        };
+//            case "quit" -> quit();
+//            default -> help();
+        return new UIResult("Message: You are in gameplay UI", State.GAMEPLAY, authToken);
     }
 
     private UIResult quit() {

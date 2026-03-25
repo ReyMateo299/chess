@@ -1,16 +1,13 @@
 package ui;
 
-import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
 import client.State;
-import model.GameData;
 import requests.*;
 import results.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;

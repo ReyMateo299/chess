@@ -2,13 +2,14 @@ package ui;
 
 import client.ResponseException;
 import client.ServerFacade;
+import client.State;
 
 import java.util.Scanner;
 import java.util.Arrays;
 
-import client.State;
 import requests.*;
 import results.*;
+
 import static ui.EscapeSequences.*;
 
 public class PreloginUI {
