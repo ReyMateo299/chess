@@ -24,8 +24,6 @@ public class ServerFacade {
         serverUrl = url;
     }
 
-    // Build request/result instances here
-
     public RegisterResult register(RegisterRequest request) throws ResponseException {
         var path = "/user";
         var httpRequest = buildRequest("POST", path, request);
@@ -134,12 +132,4 @@ public class ServerFacade {
     private boolean isSuccessful(int status) {
         return status / 100 == 2;
     }
-
-//    public static String fromHttpStatusCode(int httpStatusCode) {
-//        return switch (httpStatusCode) {
-//            case 500 -> "ServerError";
-//            case 400 -> "ClientError";
-//            default -> throw new IllegalArgumentException("Unknown HTTP status code: " + httpStatusCode);
-//        };
-//    }
 }

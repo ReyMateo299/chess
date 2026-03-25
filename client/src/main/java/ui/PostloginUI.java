@@ -108,7 +108,7 @@ public class PostloginUI {
             server.joinGame(request);
             String message = "Successfully joined game: " + params[0] + "\n" +
                     ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
-            return new UIResult(message, State.POSTLOGIN, authToken); // TODO: Change State to GAMEPLAY
+            return new UIResult(message, State.POSTLOGIN, authToken); // DO: Change State to GAMEPLAY
         }
         throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]");
     }
@@ -127,7 +127,7 @@ public class PostloginUI {
 
             String message = "Successfully joined game <" + params[0] + "> as an observer." + "\n" +
                     ChessBoardPrinter.printChessBoard("WHITE");
-            return new UIResult(message, State.POSTLOGIN, authToken); // TODO: Change State to GAMEPLAY
+            return new UIResult(message, State.POSTLOGIN, authToken); // DO: Change State to GAMEPLAY
         }
         throw new ResponseException("Expected form: observe <ID>");
     }
