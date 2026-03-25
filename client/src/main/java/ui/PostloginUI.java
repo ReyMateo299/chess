@@ -4,10 +4,8 @@ import client.Client;
 import client.ResponseException;
 import client.ServerFacade;
 import client.State;
-import requests.CreateGameRequest;
-import requests.RegisterRequest;
-import results.CreateGameResult;
-import results.RegisterResult;
+import requests.*;
+import results.*;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -16,35 +14,25 @@ import static ui.EscapeSequences.*;
 
 public class PostloginUI {
     private final ServerFacade server;
-    private State nextState;
+    private final Scanner scanner;
 
     public PostloginUI(ServerFacade server) {
         this.server = server;
+        this.scanner = new Scanner(System.in);
     }
 
-    public State run() {
-        System.out.println("\n" + RESET_TEXT_COLOR + "Type help to continue");
+    public UIResult run(String authToken) {
+//        System.out.println("\n" + RESET_TEXT_COLOR + "Type help to continue");
 
-        Scanner scanner = new Scanner(System.in);
-        var result = "";
+        printPrompt();
+        String line = scanner.nextLine();
+        UIResult uiResult = eval(line);
+        System.out.print(SET_TEXT_COLOR_BLUE + uiResult.message());
 
-        nextState = State.POSTLOGIN;
-        while (nextState == State.POSTLOGIN) {
-            printPrompt();
-            String line = scanner.nextLine();
-
-            try {
-                result = eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
-            } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
-            }
-        }
-        return nextState;
+        return uiResult;
     }
 
-    public String eval(String input) {
+    public UIResult eval(String input) {
         try {
             String[] tokens = input.toLowerCase().split(" ");
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -52,38 +40,43 @@ public class PostloginUI {
             return switch (cmd) {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
-//                case "list" -> listGames();
+                case "list" -> listGames();
 //                case "play" -> joinGame(params);
 //                case "observe" -> observeGame(params);
                 case "quit" -> quit();
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return ex.getMessage();
+            return new UIResult(ex.getMessage(), State.POSTLOGIN, null);
         }
     }
 
-    private String logout() {
-        nextState = State.PRELOGIN;
-        return "Logging out...\n";
+    private UIResult logout() {
+        String message = "Logging out...\n";
+        return new UIResult(message, State.PRELOGIN, null);
     }
 
-    private String createGame(String... params) throws ResponseException {
-        if (params.length >= 2) {
-            CreateGameRequest request = new CreateGameRequest(params[0], params[1]);
-//            CreateGameResult result = server.createGame(request);
-//            return "Successfully created game: " + result.ID();
+    private UIResult createGame(String... params) throws ResponseException {
+        if (params.length >= 1) {
+            CreateGameRequest request = new CreateGameRequest(params[0], "gameName");
+            CreateGameResult result = server.createGame(request);
+            String message = "Successfully created game: " + result.gameID();
+            return new UIResult(message, State.POSTLOGIN, null);
         }
         throw new ResponseException("Expected form: create <NAME>");
     }
 
-    private String quit() {
-        nextState = State.QUIT;
-        return "Thanks for playing! Exiting the application...";
+    private UIResult listGames() throws ResponseException {
+        return new UIResult("Message", State.POSTLOGIN, null);
     }
 
-    private String help() {
-        return """
+    private UIResult quit() {
+        String message = "Thanks for playing! Exiting the application...";
+        return new UIResult(message, State.QUIT, null);
+    }
+
+    private UIResult help() {
+        String message = """
                 - create <NAME> -> a game
                 - list -> games
                 - play <ID> [WHITE|BLACK] -> a game
@@ -92,6 +85,7 @@ public class PostloginUI {
                 - quit -> playing chess
                 - help -> with possible commands
                 """;
+        return new UIResult(message, State.POSTLOGIN, null);
     }
 
     private void printPrompt() {
