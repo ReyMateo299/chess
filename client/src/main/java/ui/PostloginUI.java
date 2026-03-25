@@ -48,7 +48,7 @@ public class PostloginUI {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "list" -> listGames();
-//                case "play" -> joinGame(params);
+                case "play" -> joinGame(params);
 //                case "observe" -> observeGame(params);
                 case "quit" -> quit();
                 default -> help();
@@ -90,8 +90,29 @@ public class PostloginUI {
             newListedGames.add(game);
             i++;
         }
+        message.deleteCharAt(message.length() - 1);
         listedGames = newListedGames;
         return new UIResult(message.toString(), State.POSTLOGIN, authToken);
+    }
+
+    private UIResult joinGame(String... params) throws ResponseException {
+        if (params.length >= 2 && (params[1].equals("white") || params[1].equals("black"))) {
+            int gameID = 0;
+            try {
+                gameID = Integer.parseInt(params[0]) - 1;
+            } catch (NumberFormatException e) {
+                throw new ResponseException(" Invalid input: " + params[0] + " - <ID> must be an integer number.");
+            }
+            if (gameID <= -1 || gameID >= listedGames.size()) {
+                throw new ResponseException("Invalid input: " + params[0] + " - Game not found.");
+            }
+
+            JoinGameRequest request = new JoinGameRequest(authToken, params[1].toUpperCase(), gameID);
+            server.joinGame(request);
+            String message = "Successfully joined game: " + params[0];
+            return new UIResult(message, State.GAMEPLAY, authToken);
+        }
+        throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]");
     }
 
     private UIResult quit() throws ResponseException {
@@ -108,12 +129,11 @@ public class PostloginUI {
                 - observe <ID> -> a game
                 - logout -> when you are done
                 - quit -> playing chess
-                - help -> with possible commands
-                """;
+                - help -> with possible commands""";
         return new UIResult(message, State.POSTLOGIN, authToken);
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

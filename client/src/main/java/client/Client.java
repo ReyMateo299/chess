@@ -2,7 +2,7 @@ package client;
 
 import ui.*;
 
-import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
@@ -22,7 +22,8 @@ public class Client {
     }
 
     public void run() {
-        System.out.println(RESET_TEXT_COLOR + "👑 Welcome to 240 Chess! Type help to get started. 👑");
+        System.out.println(RESET_TEXT_COLOR + "👑 Welcome to 240 Chess! Type " + SET_TEXT_COLOR_BLUE +
+                "help" + RESET_TEXT_COLOR + " to get started. 👑");
 
         UIResult result = new UIResult("", state, null);
         while (state != State.QUIT) {

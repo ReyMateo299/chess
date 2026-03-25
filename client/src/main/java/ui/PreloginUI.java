@@ -74,12 +74,11 @@ public class PreloginUI {
                 - register <USERNAME> <PASSWORD> <EMAIL> -> to create an account
                 - login <USERNAME> <PASSWORD> -> to play chess
                 - quit -> playing chess
-                - help -> with possible commands
-                """;
+                - help -> with possible commands""";
         return new UIResult(message, State.PRELOGIN, null);
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n\n" + RESET_TEXT_COLOR + "[LOGGED_OUT] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }
