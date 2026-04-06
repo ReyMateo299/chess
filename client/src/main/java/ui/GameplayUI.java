@@ -3,7 +3,7 @@ package ui;
 import client.ResponseException;
 import client.ServerFacade;
 import client.State;
-import requests.LogoutRequest;
+import client.websocket.WebSocketFacade;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -12,9 +12,9 @@ import static ui.EscapeSequences.*;
 
 public class GameplayUI {
     private final ServerFacade server;
+//    private final WebSocketFacade ws;
     private Scanner scanner;
     private String authToken;
-    // Add the webSocket facade here then?
 
     public GameplayUI(ServerFacade server) {
         this.server = server;

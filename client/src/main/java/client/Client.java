@@ -1,11 +1,13 @@
 package client;
 
 import ui.*;
+import client.websocket.WebSocketFacade;
 
 import static ui.EscapeSequences.*;
 
 public class Client {
     private final ServerFacade server;
+    private final WebSocketFacade ws;
     private final PreloginUI preloginUI;
     private final PostloginUI postloginUI;
     private final GameplayUI gameplayUI;
@@ -14,6 +16,8 @@ public class Client {
 
     public Client(String serverUrl) throws Exception {
         server = new ServerFacade(serverUrl);
+        // Maybe have this ws creation happen later?
+        ws = new WebSocketFacade(serverUrl);
         state = State.PRELOGIN;
         preloginUI = new PreloginUI(server);
         postloginUI = new PostloginUI(server);
