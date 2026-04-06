@@ -47,9 +47,9 @@ public class Server {
         webSocketHandler = new WebSocketHandler();
 
         javalin.ws("/ws", ws -> {
-//            ws.onConnect(webSocketHandler);
-//            ws.onMessage(webSocketHandler);
-//            ws.onClose(webSocketHandler);
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
         });
 
         AuthDAO authDAO;
