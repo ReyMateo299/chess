@@ -18,6 +18,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(WsMessageContext ctx) {
         System.out.println("Message was sent");
+        // This is where the server switches on the command type and then runs the necessary code
     }
 
     @Override
