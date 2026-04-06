@@ -14,6 +14,7 @@ public class GameplayUI {
     private final ServerFacade server;
     private Scanner scanner;
     private String authToken;
+    // Add the webSocket facade here then?
 
     public GameplayUI(ServerFacade server) {
         this.server = server;

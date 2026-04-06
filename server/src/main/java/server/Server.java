@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
+import dataaccess.*;
 import requests.*;
 import results.*;
 import service.exceptions.*;
@@ -13,13 +14,14 @@ import service.ClearService;
 import service.GameService;
 import service.UserService;
 
-import dataaccess.*;
+import server.websocket.WebSocketHandler;
 
 import java.util.Map;
 
 public class Server {
 
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     private final ClearService clearService;
     private final GameService gameService;
@@ -40,6 +42,15 @@ public class Server {
         javalin.put("/game", this::joinGame);
         javalin.delete("/db", this::clear);
         javalin.exception(ServiceException.class, this::exceptionHandler);
+
+        // Add Websocket connection and handler
+        webSocketHandler = new WebSocketHandler();
+
+        javalin.ws("/ws", ws -> {
+//            ws.onConnect(webSocketHandler);
+//            ws.onMessage(webSocketHandler);
+//            ws.onClose(webSocketHandler);
+        });
 
         AuthDAO authDAO;
         GameDAO gameDAO;
