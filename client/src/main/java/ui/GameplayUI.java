@@ -1,7 +1,9 @@
 package ui;
 
+import client.ResponseException;
 import client.ServerFacade;
 import client.State;
+import requests.LogoutRequest;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -19,6 +21,8 @@ public class GameplayUI {
     }
 
     public UIResult run(String authToken) {
+        this.authToken = authToken;
+
         printPrompt();
         String line = scanner.nextLine();
         UIResult uiResult = eval(line);
@@ -27,20 +31,56 @@ public class GameplayUI {
     }
 
     public UIResult eval(String input) {
-        String[] tokens = input.toLowerCase().split(" ");
-        String cmd = (tokens.length > 0) ? tokens[0] : "help";
-        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-        return new UIResult("Message: You are in gameplay UI", State.GAMEPLAY, authToken);
+        try {
+            String[] tokens = input.toLowerCase().split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+            return switch (cmd) {
+                case "redraw" -> redrawBoard();
+                case "leave" -> leaveGame();
+                case "make" -> makeMove();
+                case "resign" -> resign();
+                case "highlight" -> highlightMoves();
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken);
+        }
     }
 
-    private UIResult quit() {
-        String message = "Thanks for playing! Exiting the application...";
-        return new UIResult(message, State.GAMEPLAY, null);
+    private UIResult redrawBoard() throws ResponseException {
+        String message = "";
+        return new UIResult(message, State.GAMEPLAY, authToken);
+    }
+
+    private UIResult leaveGame() throws ResponseException {
+        String message = "";
+        return new UIResult(message, State.POSTLOGIN, authToken);
+    }
+
+    private UIResult makeMove() throws ResponseException {
+        String message = "";
+        return new UIResult(message, State.GAMEPLAY, authToken);
+    }
+
+    private UIResult resign() throws ResponseException {
+        String message = "";
+        return new UIResult(message, State.GAMEPLAY, authToken);
+    }
+
+    private UIResult highlightMoves() throws ResponseException {
+        String message = "";
+        return new UIResult(message, State.GAMEPLAY, authToken);
     }
 
     private UIResult help() {
         String message =  """
-                - Change this
+                - redraw -> the chess board
+                - leave -> current game
+                - make <MOVE> -> a move
+                - resign -> the game
+                - highlight -> legal moves
+                - help -> with possible commands
                 """;
         return new UIResult(message, State.GAMEPLAY, null);
     }

@@ -152,7 +152,8 @@ public class PostloginUI {
                 - observe <ID> -> a game
                 - logout -> when you are done
                 - quit -> playing chess
-                - help -> with possible commands""";
+                - help -> with possible commands
+                """;
         return new UIResult(message, State.POSTLOGIN, authToken);
     }
 
