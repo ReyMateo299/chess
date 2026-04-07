@@ -45,33 +45,33 @@ public class GameplayUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken);
+            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken, null);
         }
     }
 
     private UIResult redrawBoard() throws ResponseException {
         String message = "";
-        return new UIResult(message, State.GAMEPLAY, authToken);
+        return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult leaveGame() throws ResponseException {
         String message = "";
-        return new UIResult(message, State.POSTLOGIN, authToken);
+        return new UIResult(message, State.POSTLOGIN, authToken, null);
     }
 
     private UIResult makeMove() throws ResponseException {
         String message = "";
-        return new UIResult(message, State.GAMEPLAY, authToken);
+        return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult resign() throws ResponseException {
         String message = "";
-        return new UIResult(message, State.GAMEPLAY, authToken);
+        return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult highlightMoves() throws ResponseException {
         String message = "";
-        return new UIResult(message, State.GAMEPLAY, authToken);
+        return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult help() {
@@ -83,7 +83,7 @@ public class GameplayUI {
                 - highlight -> legal moves
                 - help -> with possible commands
                 """;
-        return new UIResult(message, State.GAMEPLAY, null);
+        return new UIResult(message, State.GAMEPLAY, null, null);
     }
 
     private void printPrompt() {

@@ -51,14 +51,14 @@ public class PostloginUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken);
+            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken, null);
         }
     }
 
     private UIResult logout() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
         String message = "Logging out...";
-        return new UIResult(message, State.PRELOGIN, null);
+        return new UIResult(message, State.PRELOGIN, null, null);
     }
 
     private UIResult createGame(String... params) throws ResponseException {
@@ -66,7 +66,7 @@ public class PostloginUI {
             CreateGameRequest request = new CreateGameRequest(authToken, params[0]);
             CreateGameResult result = server.createGame(request);
             String message = "Successfully created game: " + result.gameID();
-            return new UIResult(message, State.POSTLOGIN, authToken);
+            return new UIResult(message, State.POSTLOGIN, authToken, null);
         }
         throw new ResponseException("Expected form: create <NAME>");
     }
@@ -91,10 +91,10 @@ public class PostloginUI {
         listedGames = newListedGames;
 
         if (listedGames.isEmpty()) {
-            return new UIResult("No existing games.", State.POSTLOGIN, authToken);
+            return new UIResult("No existing games.", State.POSTLOGIN, authToken, null);
         }
 
-        return new UIResult(message.toString(), State.POSTLOGIN, authToken);
+        return new UIResult(message.toString(), State.POSTLOGIN, authToken, null);
     }
 
     private UIResult joinGame(String... params) throws ResponseException {
@@ -114,7 +114,7 @@ public class PostloginUI {
             server.joinGame(request);
             String message = "Successfully joined game: " + params[0] + "\n" +
                     ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
-            return new UIResult(message, State.POSTLOGIN, authToken); // DO: Change State to GAMEPLAY
+            return new UIResult(message, State.POSTLOGIN, authToken, null); // DO: Change State to GAMEPLAY
         }
         throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]");
     }
@@ -133,7 +133,7 @@ public class PostloginUI {
 
             String message = "Successfully joined game <" + params[0] + "> as an observer." + "\n" +
                     ChessBoardPrinter.printChessBoard("WHITE");
-            return new UIResult(message, State.POSTLOGIN, authToken); // DO: Change State to GAMEPLAY
+            return new UIResult(message, State.POSTLOGIN, authToken, null); // DO: Change State to GAMEPLAY
         }
         throw new ResponseException("Expected form: observe <ID>");
     }
@@ -141,7 +141,7 @@ public class PostloginUI {
     private UIResult quit() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
         String message = "Thanks for playing! Exiting the application...";
-        return new UIResult(message, State.QUIT, null);
+        return new UIResult(message, State.QUIT, null, null);
     }
 
     private UIResult help() {
@@ -154,7 +154,7 @@ public class PostloginUI {
                 - quit -> playing chess
                 - help -> with possible commands
                 """;
-        return new UIResult(message, State.POSTLOGIN, authToken);
+        return new UIResult(message, State.POSTLOGIN, authToken, null);
     }
 
     private void printPrompt() {
