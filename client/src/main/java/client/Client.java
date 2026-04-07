@@ -55,6 +55,7 @@ public class Client {
     private void initiateGameplay(OpenWebsocket openWebsocket) {
         try {
             ws = new WebSocketFacade(serverUrl);
+
         } catch (ResponseException e) {
             System.out.println("Error connecting to game.");
         }
