@@ -2,6 +2,7 @@ package client;
 
 import ui.*;
 import client.websocket.WebSocketFacade;
+import websocket.commands.UserGameCommand;
 
 import static ui.EscapeSequences.*;
 
@@ -55,7 +56,8 @@ public class Client {
     private void initiateGameplay(OpenWebsocket openWebsocket) {
         try {
             ws = new WebSocketFacade(serverUrl);
-
+            ws.sendCommand(new UserGameCommand(
+                    UserGameCommand.CommandType.CONNECT, authToken, openWebsocket.gameID()));
         } catch (ResponseException e) {
             System.out.println("Error connecting to game.");
         }
