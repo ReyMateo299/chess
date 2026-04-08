@@ -45,10 +45,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void enterGame(String authToken, Integer gameID, Session session) throws IOException {
-//        connections.add(session);
-//        var message = String.format("%s is in the shop", visitorName);
-//        var notification = new Notification(Notification.Type.ARRIVAL, message);
-//        connections.broadcast(session, notification);
+        connections.add(gameID, session);
+        var message = String.format("<UNKNOWN_USER> joined game %d", gameID);
+        var notification = new NotificationMessage(message);
+        connections.broadcast(gameID, session, notification);
     }
 
     private void leaveGame(String authToken, Integer gameID, Session session) throws IOException {

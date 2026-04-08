@@ -31,7 +31,14 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(Session excludeSession, ServerMessage message) throws IOException {
-
+    public void broadcast(Integer gameID, Session excludeSession, ServerMessage serverMessage) throws IOException {
+        String message = serverMessage.toString();
+        for (Session c : connections.get(gameID)) {
+            if (c.isOpen()) {
+                if (!c.equals(excludeSession)) {
+                    c.getRemote().sendString(message);
+                }
+            }
+        }
     }
 }
