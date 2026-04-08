@@ -62,7 +62,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var message = String.format("<UNKNOWN_USER> joined game %d", gameID);
         var notification = new NotificationMessage(message);
         connections.broadcast(gameID, session, notification);
-//        var loadGameMessage = new LoadGameMessage()
+        var loadGameMessage = new LoadGameMessage("PUT_GAME_HERE");
+        session.getRemote().sendString(new Gson().toJson(loadGameMessage));
     }
 
     private void leaveGame(String authToken, Integer gameID, Session session) throws IOException {
