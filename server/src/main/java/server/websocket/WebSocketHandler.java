@@ -73,6 +73,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             throw new ServiceException("Internal Server Error");
         }
 
+        if (game == null) {
+            var errorMessage = new ErrorMessage("ERROR: game doesn't exist");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+        }
+
         ChessGame.TeamColor color = null;
 
         if (game.whiteUsername().equals(username)) {
