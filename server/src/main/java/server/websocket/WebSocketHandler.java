@@ -49,6 +49,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> enterGame(command.getAuthToken(), command.getGameID(), ctx.session);
+                case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
                 case LEAVE -> leaveGame(command.getAuthToken(), command.getGameID(), ctx.session);
             }
         } catch (Exception ex) {
@@ -63,19 +64,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void enterGame(String authToken, Integer gameID, Session session) throws IOException, ServiceException {
 
-        AuthData user;
-        GameData game;
+        AuthData user = getUser(authToken);
+        GameData game = getGame(gameID);
 
-        try {
-            user = authDAO.getAuth(authToken);
-            game = gameDAO.getGame(gameID);
-        } catch (DataAccessException e) {
-            throw new ServiceException("Internal Server Error");
-        }
-
-        if (user == null) {
-            var errorMessage = new ErrorMessage("ERROR: bad authorization");
-            session.getRemote().sendString(new Gson().toJson(errorMessage));
+        if (!userExists(user, session)) {
             return;
         }
         if (game == null) {
@@ -109,13 +101,59 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(gameID, session, serializedNotification);
     }
 
-    private void leaveGame(String authToken, Integer gameID, Session session) throws IOException {
+    private void resign(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
+        // TODO: Have the server mark the game as over
+        AuthData user = getUser(authToken);
+
+        if (!userExists(user, session)) {
+            return;
+        }
+
+        String message = String.format("%s has resigned. The game has ended.", user.username());
+        var notification = new NotificationMessage(message);
+        String serializedNotification = new Gson().toJson(notification);
+        connections.broadcast(gameID, null, serializedNotification);
+    }
+
+    private void leaveGame(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
+        AuthData user = getUser(authToken);
+
+        if (!userExists(user, session)) {
+            return;
+        }
+
         connections.remove(gameID, session);
-        var message = String.format("%s left the game", "USER");
+        var message = String.format("%s left the game", user.username());
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
     }
 
+    private AuthData getUser(String authToken) throws ServiceException {
+        AuthData user;
+        try {
+            return authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
+        }
+    }
+
+    private GameData getGame(Integer gameID) throws ServiceException {
+        GameData game;
+        try {
+            return gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
+        }
+    }
+
+    private Boolean userExists(AuthData user, Session session) throws IOException{
+        if (user == null) {
+            var errorMessage = new ErrorMessage("ERROR: bad authorization");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return false;
+        }
+        return true;
+    }
 
 }
