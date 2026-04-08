@@ -1,12 +1,16 @@
 package client;
 
+import client.websocket.ServerMessageHandler;
 import ui.*;
 import client.websocket.WebSocketFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 import static ui.EscapeSequences.*;
 
-public class Client {
+public class Client implements ServerMessageHandler {
     private final String serverUrl;
     private final ServerFacade server;
     private final PreloginUI preloginUI;
@@ -61,5 +65,17 @@ public class Client {
         } catch (ResponseException e) {
             System.out.println("Error connecting to game.");
         }
+    }
+
+    public void sendLoadGame(LoadGameMessage message) {
+        ChessBoardPrinter.printChessBoard("WHITE");
+    }
+
+    public void sendErrorMessage(ErrorMessage message) {
+
+    }
+
+    public void notify(NotificationMessage notification) {
+
     }
 }

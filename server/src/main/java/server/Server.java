@@ -43,15 +43,6 @@ public class Server {
         javalin.delete("/db", this::clear);
         javalin.exception(ServiceException.class, this::exceptionHandler);
 
-        // Add Websocket connection and handler
-        webSocketHandler = new WebSocketHandler();
-
-        javalin.ws("/ws", ws -> {
-            ws.onConnect(webSocketHandler);
-            ws.onMessage(webSocketHandler);
-            ws.onClose(webSocketHandler);
-        });
-
         AuthDAO authDAO;
         GameDAO gameDAO;
         UserDAO userDAO;
@@ -72,6 +63,14 @@ public class Server {
                 userDAO = new MemoryUserDAO();
             }
         }
+
+        // Add Websocket connection and handler
+        webSocketHandler = new WebSocketHandler(authDAO, gameDAO, userDAO);
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(webSocketHandler);
+            ws.onMessage(webSocketHandler);
+            ws.onClose(webSocketHandler);
+        });
 
         clearService = new ClearService(authDAO, gameDAO, userDAO);
         gameService = new GameService(authDAO, gameDAO);
