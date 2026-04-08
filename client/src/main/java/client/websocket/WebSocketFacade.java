@@ -22,11 +22,13 @@ public class WebSocketFacade extends Endpoint {
     // This facade aint the place to print messages to the dang console
 
     Session session;
+    ServerMessageHandler serverMessageHandler;
 
-    public WebSocketFacade(String url) throws ResponseException {
+    public WebSocketFacade(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
+            this.serverMessageHandler = serverMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);

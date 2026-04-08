@@ -59,7 +59,7 @@ public class Client implements ServerMessageHandler {
 
     private void initiateGameplay(OpenWebsocket openWebsocket) {
         try {
-            ws = new WebSocketFacade(serverUrl);
+            ws = new WebSocketFacade(serverUrl, this);
             ws.sendCommand(new UserGameCommand(
                     UserGameCommand.CommandType.CONNECT, authToken, openWebsocket.gameID()));
         } catch (ResponseException e) {
@@ -76,6 +76,6 @@ public class Client implements ServerMessageHandler {
     }
 
     public void notify(NotificationMessage notification) {
-
+        System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
     }
 }

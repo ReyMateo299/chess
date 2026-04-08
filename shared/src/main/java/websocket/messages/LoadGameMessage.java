@@ -9,7 +9,7 @@ public class LoadGameMessage extends ServerMessage {
         this.game = game;
     }
 
-    String getGame() {
+    public String getGame() {
         return this.game;
     }
 }
