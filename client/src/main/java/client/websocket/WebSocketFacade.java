@@ -6,10 +6,14 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static ui.EscapeSequences.RESET_TEXT_COLOR;
+import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
 public class WebSocketFacade extends Endpoint {
 
@@ -31,7 +35,12 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    System.out.println("Message sent: " + message);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    switch (serverMessage.getServerMessageType()) {
+                        case ERROR -> temporaryMessage();
+                        case LOAD_GAME -> temporaryMessage();
+                        case NOTIFICATION -> temporaryMessage();
+                    }
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
@@ -50,5 +59,9 @@ public class WebSocketFacade extends Endpoint {
         } catch (IOException ex) {
             throw new ResponseException(ex.getMessage());
         }
+    }
+
+    private void temporaryMessage() {
+        System.out.println("[INFO] Code not implemented. This came from WebSocketFacade.java");
     }
 }
