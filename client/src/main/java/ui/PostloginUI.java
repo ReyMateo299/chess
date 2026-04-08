@@ -58,7 +58,7 @@ public class PostloginUI {
 
     private UIResult logout() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
-        String message = "Logging out...";
+        String message = "Logging out...\n";
         return new UIResult(message, State.PRELOGIN, null, null);
     }
 
@@ -66,10 +66,10 @@ public class PostloginUI {
         if (params.length >= 1) {
             CreateGameRequest request = new CreateGameRequest(authToken, params[0]);
             CreateGameResult result = server.createGame(request);
-            String message = "Successfully created game: " + result.gameID();
+            String message = "Successfully created game: " + result.gameID() + "\n";
             return new UIResult(message, State.POSTLOGIN, authToken, null);
         }
-        throw new ResponseException("Expected form: create <NAME>");
+        throw new ResponseException("Expected form: create <NAME>\n");
     }
 
     private UIResult listGames() throws ResponseException {
@@ -92,7 +92,7 @@ public class PostloginUI {
         listedGames = newListedGames;
 
         if (listedGames.isEmpty()) {
-            return new UIResult("No existing games.", State.POSTLOGIN, authToken, null);
+            return new UIResult("No existing games.\n", State.POSTLOGIN, authToken, null);
         }
 
         return new UIResult(message.toString(), State.POSTLOGIN, authToken, null);
@@ -104,10 +104,10 @@ public class PostloginUI {
             try {
                 gameID = Integer.parseInt(params[0]) - 1;
             } catch (NumberFormatException e) {
-                throw new ResponseException(" Invalid input: " + params[0] + " - <ID> must be an integer number.");
+                throw new ResponseException(" Invalid input: " + params[0] + " - <ID> must be an integer number.\n");
             }
             if (gameID <= -1 || gameID >= listedGames.size()) {
-                throw new ResponseException("Invalid input: " + params[0] + " - Game not found.");
+                throw new ResponseException("Invalid input: " + params[0] + " - Game not found.\n");
             }
 
             int realGameID = listedGames.get(gameID).gameID();
@@ -115,10 +115,10 @@ public class PostloginUI {
             server.joinGame(request);
 //            String message = "Successfully joined game: " + params[0] + "\n" +
 //                    ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
-            String message = "Joining game <" + params[0] + "> as a player ...";
-            return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(true, gameID)); // DO: Change State to GAMEPLAY
+            String message = "Joining game <" + params[0] + "> as a player ...\n";
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, gameID)); // DO: Change State to GAMEPLAY
         }
-        throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]");
+        throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]\n");
     }
 
     private UIResult observeGame(String... params) throws ResponseException {
@@ -127,23 +127,23 @@ public class PostloginUI {
             try {
                 gameID = Integer.parseInt(params[0]) - 1;
             } catch (NumberFormatException e) {
-                throw new ResponseException(" Invalid input: " + params[0] + " - <ID> must be an integer number.");
+                throw new ResponseException(" Invalid input: " + params[0] + " - <ID> must be an integer number.\n");
             }
             if (gameID <= -1 || gameID >= listedGames.size()) {
-                throw new ResponseException("Invalid input: " + params[0] + " - Game not found.");
+                throw new ResponseException("Invalid input: " + params[0] + " - Game not found.\n");
             }
 
 //            String message = "Successfully joined game <" + params[0] + "> as an observer." + "\n" +
 //                    ChessBoardPrinter.printChessBoard("WHITE");
-            String message = "Joining game <" + params[0] + "> as an observer ...";
-            return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(true, gameID));
+            String message = "Joining game <" + params[0] + "> as an observer ...\n";
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, gameID));
         }
-        throw new ResponseException("Expected form: observe <ID>");
+        throw new ResponseException("Expected form: observe <ID>\n");
     }
 
     private UIResult quit() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
-        String message = "Thanks for playing! Exiting the application...";
+        String message = "Thanks for playing! Exiting the application...\n";
         return new UIResult(message, State.QUIT, null, null);
     }
 
@@ -161,6 +161,6 @@ public class PostloginUI {
     }
 
     private void printPrompt() {
-        System.out.print("\n\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

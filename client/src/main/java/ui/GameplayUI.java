@@ -45,32 +45,32 @@ public class GameplayUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken, null);
+            return new UIResult(ex.getMessage(), State.GAMEPLAY, authToken, null);
         }
     }
 
     private UIResult redrawBoard() throws ResponseException {
-        String message = "";
+        String message = "redraw board\n";
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult leaveGame() throws ResponseException {
-        String message = "";
+        String message = "Leaving game...\n";
         return new UIResult(message, State.POSTLOGIN, authToken, null);
     }
 
     private UIResult makeMove() throws ResponseException {
-        String message = "";
+        String message = "make move\n";
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult resign() throws ResponseException {
-        String message = "";
+        String message = "resign\n";
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult highlightMoves() throws ResponseException {
-        String message = "";
+        String message = "highlight\n";
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
@@ -87,6 +87,6 @@ public class GameplayUI {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + "[LOGGED_IN] >>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + RESET_TEXT_COLOR + "[IN_GAME] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

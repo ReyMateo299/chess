@@ -3,9 +3,9 @@ package client.websocket;
 import websocket.messages.*;
 
 public interface ServerMessageHandler {
-    void sendLoadGame(LoadGameMessage message);
+    void printLoadGame(LoadGameMessage message);
 
-    void sendErrorMessage(ErrorMessage message);
+    void printErrorMessage(ErrorMessage message);
 
     void notify(NotificationMessage notification);
 }

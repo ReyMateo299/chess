@@ -52,7 +52,7 @@ public class Client implements ServerMessageHandler {
         state = result.nextState();
         authToken = result.authToken();
         OpenWebsocket openWebsocket = result.openWebsocket();
-        if (openWebsocket.open() == true) {
+        if (openWebsocket != null && openWebsocket.open() == true) {
             initiateGameplay(openWebsocket);
         }
     }
@@ -67,15 +67,23 @@ public class Client implements ServerMessageHandler {
         }
     }
 
-    public void sendLoadGame(LoadGameMessage message) {
-        ChessBoardPrinter.printChessBoard("WHITE");
+    public void printLoadGame(LoadGameMessage message) {
+        System.out.println(SET_TEXT_COLOR_RED + "Load Message: " + message.getGame());
+        System.out.println(ChessBoardPrinter.printChessBoard("WHITE"));
+        printGameplayUIPrompt();
     }
 
-    public void sendErrorMessage(ErrorMessage message) {
-
+    public void printErrorMessage(ErrorMessage message) {
+        System.out.println(SET_TEXT_COLOR_RED + "Error Message: " + message.getErrorMessage());
+        printGameplayUIPrompt();
     }
 
     public void notify(NotificationMessage notification) {
         System.out.println(SET_TEXT_COLOR_RED + notification.getMessage());
+        printGameplayUIPrompt();
+    }
+
+    private void printGameplayUIPrompt() {
+        System.out.print("\n" + RESET_TEXT_COLOR + "[IN_GAME] >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,9 +39,9 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     switch (serverMessage.getServerMessageType()) {
-                        case ERROR -> temporaryMessage();
-                        case LOAD_GAME -> temporaryMessage();
-                        case NOTIFICATION -> temporaryMessage();
+                        case ERROR -> handleErrorMessage(new Gson().fromJson(message, ErrorMessage.class));
+                        case LOAD_GAME -> handleLoadGameMessage(new Gson().fromJson(message, LoadGameMessage.class));
+                        case NOTIFICATION -> handleNotification(new Gson().fromJson(message, NotificationMessage.class));
                     }
                 }
             });
@@ -63,7 +63,15 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    private void temporaryMessage() {
-        System.out.println("[INFO] Code not implemented. This came from WebSocketFacade.java");
+    private void handleErrorMessage(ErrorMessage errorMessage) {
+        serverMessageHandler.printErrorMessage(errorMessage);
+    }
+
+    private void handleLoadGameMessage(LoadGameMessage loadGameMessage) {
+        serverMessageHandler.printLoadGame(loadGameMessage);
+    }
+
+    private void handleNotification(NotificationMessage notification) {
+        serverMessageHandler.notify(notification);
     }
 }
