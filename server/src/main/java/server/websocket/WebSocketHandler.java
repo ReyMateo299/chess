@@ -12,7 +12,7 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
-import model.GameData;
+import model.*;
 import org.eclipse.jetty.websocket.api.Session;
 
 import service.exceptions.ServiceException;
@@ -63,21 +63,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void enterGame(String authToken, Integer gameID, Session session) throws IOException, ServiceException {
 
-        String username;
+        AuthData user;
         GameData game;
 
         try {
-            username = authDAO.getAuth(authToken).username();
+            user = authDAO.getAuth(authToken);
             game = gameDAO.getGame(gameID);
         } catch (DataAccessException e) {
             throw new ServiceException("Internal Server Error");
         }
 
+        if (user == null) {
+            var errorMessage = new ErrorMessage("ERROR: bad authorization");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
         if (game == null) {
             var errorMessage = new ErrorMessage("ERROR: game doesn't exist");
             session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
         }
 
+        String username = user.username();
         ChessGame.TeamColor color = null;
 
         if (game.whiteUsername().equals(username)) {
