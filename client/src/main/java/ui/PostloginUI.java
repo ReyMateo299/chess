@@ -116,7 +116,7 @@ public class PostloginUI {
 //            String message = "Successfully joined game: " + params[0] + "\n" +
 //                    ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
             String message = "Joining game <" + params[0] + "> as a player ...\n";
-            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, gameID)); // DO: Change State to GAMEPLAY
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID)); // DO: Change State to GAMEPLAY
         }
         throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]\n");
     }
@@ -133,10 +133,11 @@ public class PostloginUI {
                 throw new ResponseException("Invalid input: " + params[0] + " - Game not found.\n");
             }
 
+            int realGameID = listedGames.get(gameID).gameID();
 //            String message = "Successfully joined game <" + params[0] + "> as an observer." + "\n" +
 //                    ChessBoardPrinter.printChessBoard("WHITE");
             String message = "Joining game <" + params[0] + "> as an observer ...\n";
-            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, gameID));
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID));
         }
         throw new ResponseException("Expected form: observe <ID>\n");
     }

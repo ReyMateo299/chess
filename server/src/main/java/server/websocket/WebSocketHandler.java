@@ -1,7 +1,9 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
+import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import io.javalin.websocket.WsCloseContext;
@@ -10,8 +12,10 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 
+import service.exceptions.ServiceException;
 import websocket.commands.*;
 import websocket.messages.*;
 
@@ -47,7 +51,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> enterGame(command.getAuthToken(), command.getGameID(), ctx.session);
                 case LEAVE -> leaveGame(command.getAuthToken(), command.getGameID(), ctx.session);
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -57,12 +61,37 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void enterGame(String authToken, Integer gameID, Session session) throws IOException {
+    private void enterGame(String authToken, Integer gameID, Session session) throws IOException, ServiceException {
+
+        String username;
+        GameData game;
+
+        try {
+            username = authDAO.getAuth(authToken).username();
+            game = gameDAO.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
+        }
+
+        ChessGame.TeamColor color = null;
+
+        if (game.whiteUsername().equals(username)) {
+            color = ChessGame.TeamColor.WHITE;
+        } else if (game.blackUsername().equals(username)) {
+            color = ChessGame.TeamColor.BLACK;
+        }
+
         connections.add(gameID, session);
-        var loadGameMessage = new LoadGameMessage("PUT_GAME_HERE");
+        var loadGameMessage = new LoadGameMessage(new Gson().toJson(game.game()));
         session.getRemote().sendString(new Gson().toJson(loadGameMessage));
 
-        var message = String.format("%s joined game %d", "USER", gameID);
+        String message;
+        if (color != null) {
+            message = String.format("%s connected as team %s", username, color.toString());
+        } else {
+            message = String.format("%s connected as an observer", username);
+        }
+
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
