@@ -109,7 +109,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, ServiceException {
         Integer gameID = command.getGameID();
         AuthData user = getUser(command.getAuthToken());
-        GameData gameData = getGame(gameID;
+        GameData gameData = getGame(gameID);
 
         if (!userExists(user, session)) {
             return;
@@ -205,16 +205,46 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void leaveGame(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
         AuthData user = getUser(authToken);
+        GameData gameData = getGame(gameID);
 
         if (!userExists(user, session)) {
             return;
+        }
+        if (gameData == null) {
+            var errorMessage = new ErrorMessage("ERROR: game doesn't exist");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        String username = user.username();
+        TeamColor playerColor = null;
+
+        if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
+            playerColor = TeamColor.WHITE;
+        } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
+            playerColor = TeamColor.BLACK;
+        }
+
+        // Remove play from game in database
+        String color;
+        if (playerColor == TeamColor.WHITE) {
+            color = "WHITE";
+        } else {
+            color = "BLACK";
+        }
+        if (playerColor != null) {
+            try {
+                gameDAO.removePlayer(gameID, color);
+            } catch (DataAccessException e) {
+                throw new ServiceException(e.getMessage());
+            }
         }
 
         connections.remove(gameID, session);
         var message = String.format("%s left the game", user.username());
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
-        connections.broadcast(gameID, session, serializedNotification);
+        connections.broadcast(gameID, null, serializedNotification);
     }
 
     private AuthData getUser(String authToken) throws ServiceException {

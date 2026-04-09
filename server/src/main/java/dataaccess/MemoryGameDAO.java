@@ -31,6 +31,10 @@ public class MemoryGameDAO implements GameDAO {
         return updatedGame;
     }
 
+    public GameData removePlayer(int gameID, String playerColor) throws DataAccessException {
+        return new GameData(0, "TEST", "TEST", "TEST", new ChessGame());
+    }
+
     public GameData getGame(String gameName) {
         for (GameData gameData : games.values()) {
             if (gameData.gameName().equals(gameName)) {
