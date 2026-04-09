@@ -1,6 +1,7 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -49,6 +50,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> enterGame(command.getAuthToken(), command.getGameID(), ctx.session);
+                case MAKE_MOVE -> makeMove(new Gson().fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
                 case RESIGN -> resign(command.getAuthToken(), command.getGameID(), ctx.session);
                 case LEAVE -> leaveGame(command.getAuthToken(), command.getGameID(), ctx.session);
             }
@@ -77,12 +79,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         String username = user.username();
-        ChessGame.TeamColor color = null;
+        TeamColor color = null;
 
         if (game.whiteUsername().equals(username)) {
-            color = ChessGame.TeamColor.WHITE;
+            color = TeamColor.WHITE;
         } else if (game.blackUsername().equals(username)) {
-            color = ChessGame.TeamColor.BLACK;
+            color = TeamColor.BLACK;
         }
 
         connections.add(gameID, session);
@@ -99,6 +101,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
+    }
+
+    private void makeMove(MakeMoveCommand command, Session session) throws IOException, ServiceException {
+        AuthData user = getUser(command.getAuthToken());
+        GameData gameData = getGame(command.getGameID());
+
+        if (!userExists(user, session)) {
+            return;
+        }
+        if (gameData == null) {
+            var errorMessage = new ErrorMessage("ERROR: game doesn't exist");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        String username = user.username();
+        TeamColor playerColor = null;
+
+        if (gameData.whiteUsername().equals(username)) {
+            playerColor = TeamColor.WHITE;
+        } else if (gameData.blackUsername().equals(username)) {
+            playerColor = TeamColor.BLACK;
+        }
+
+        ChessGame game = gameData.game();
+        TeamColor teamTurn = game.getTeamTurn();
+
     }
 
     private void resign(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
