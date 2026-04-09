@@ -75,6 +75,7 @@ public class ServerFacade {
         var path = "/db";
         var httpRequest = buildRequest("DELETE", path, null);
         sendRequest(httpRequest);
+//        return handleResponse(response, RegisterResult.class);
     }
 
     private HttpRequest buildRequest(String method, String path, Object body) {

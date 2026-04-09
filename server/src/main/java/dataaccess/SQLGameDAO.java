@@ -120,11 +120,12 @@ public class SQLGameDAO implements GameDAO {
         GameData gameData = getGame(gameID);
         ChessGame chessGame = gameData.game();
         chessGame.setTeamTurn(null);
+        Gson gsonWithNulls = new GsonBuilder().serializeNulls().create();
 
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "UPDATE games SET game = ?  WHERE id = ?";
             try (var preparedStatement = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                preparedStatement.setString(1, new Gson().toJson(chessGame));
+                preparedStatement.setString(1, gsonWithNulls.toJson(chessGame));
                 preparedStatement.setInt(2, gameID);
 
                 preparedStatement.executeUpdate();

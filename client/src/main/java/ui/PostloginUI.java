@@ -113,6 +113,8 @@ public class PostloginUI {
             int realGameID = listedGames.get(gameID).gameID();
             JoinGameRequest request = new JoinGameRequest(authToken, params[1].toUpperCase(), realGameID);
             server.joinGame(request);
+//            String message = "Successfully joined game: " + params[0] + "\n" +
+//                    ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
             String message = "Joining game <" + params[0] + "> as a player ...\n";
             return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID)); // DO: Change State to GAMEPLAY
         }
