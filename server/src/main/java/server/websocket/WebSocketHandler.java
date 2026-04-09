@@ -96,7 +96,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         String message;
         if (color != null) {
-            message = String.format("%s connected as team %s", username, color.toString());
+            message = String.format("%s connected as team %s", username, color);
         } else {
             message = String.format("%s connected as an observer", username);
         }
@@ -107,8 +107,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(MakeMoveCommand command, Session session) throws IOException, ServiceException {
+        Integer gameID = command.getGameID();
         AuthData user = getUser(command.getAuthToken());
-        GameData gameData = getGame(command.getGameID());
+        GameData gameData = getGame(gameID;
 
         if (!userExists(user, session)) {
             return;
@@ -149,6 +150,43 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         //TODO: Add fuctionality to update the chess game
+
+        // Send Load_game message
+        var loadGameMessage = new LoadGameMessage(new Gson().toJson(game), playerColor);
+        String serializedMessage = new Gson().toJson(loadGameMessage);
+        connections.broadcast(gameID, null, serializedMessage);
+
+        // Send notification of the move to all other clients
+        String message = "Player made move: INSERT_MOVE_HERE";
+        var notification = new NotificationMessage(message);
+        String serializedNotification = new Gson().toJson(notification);
+        connections.broadcast(gameID, session, serializedNotification);
+
+        // Send move result notification to all clients
+        if (game.isInCheck(TeamColor.WHITE)) {
+            message = "WHITE is in check";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+        }
+        if (game.isInCheck(TeamColor.BLACK)) {
+            message = "BLACK is in check";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+        }
+        if (game.isInStalemate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
+            message = "Stalemate!";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+        }
+        if (game.isInCheckmate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
+            message = "Checkmate!";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+        }
     }
 
     private void resign(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
