@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.GameData;
 import model.UserData;
 
@@ -32,6 +33,10 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     public GameData removePlayer(int gameID, String playerColor) throws DataAccessException {
+        return new GameData(0, "TEST", "TEST", "TEST", new ChessGame());
+    }
+
+    public GameData updateGameWithMove(int gameID, ChessMove move) throws DataAccessException {
         return new GameData(0, "TEST", "TEST", "TEST", new ChessGame());
     }
 

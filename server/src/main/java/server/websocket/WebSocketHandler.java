@@ -150,6 +150,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         //TODO: Add fuctionality to update the chess game
+        try {
+            gameDAO.updateGameWithMove(gameID, move);
+        } catch (DataAccessException e) {
+            throw new ServiceException(e.getMessage());
+        }
 
         // Send Load_game message
         var loadGameMessage = new LoadGameMessage(new Gson().toJson(game), playerColor);
