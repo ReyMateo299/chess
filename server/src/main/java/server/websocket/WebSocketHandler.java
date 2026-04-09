@@ -86,7 +86,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         connections.add(gameID, session);
-        var loadGameMessage = new LoadGameMessage(new Gson().toJson(game.game()));
+        var loadGameMessage = new LoadGameMessage(new Gson().toJson(game.game()), color);
         session.getRemote().sendString(new Gson().toJson(loadGameMessage));
 
         String message;

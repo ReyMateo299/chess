@@ -1,5 +1,8 @@
 package client;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessGame.TeamColor;
 import client.websocket.ServerMessageHandler;
 import ui.*;
 import client.websocket.WebSocketFacade;
@@ -67,10 +70,14 @@ public class Client implements ServerMessageHandler {
         }
     }
 
-    public void printLoadGame(LoadGameMessage message) {
-        String serializedGame = message.getGame();
-        System.out.println(SET_TEXT_COLOR_RED + "Load Message: " + serializedGame);
-//        System.out.println(ChessBoardPrinter.printChessBoard("WHITE"));
+    public void printLoadGame(ChessGame game, TeamColor teamColor) {
+        System.out.println(SET_TEXT_COLOR_RED + "Load Message: ");
+        if (teamColor == TeamColor.WHITE || teamColor == null) {
+            System.out.println(ChessBoardPrinter.printChessBoard(TeamColor.WHITE, game.getBoard()));
+        } else {
+            System.out.println(ChessBoardPrinter.printChessBoard(TeamColor.BLACK, game.getBoard()));
+        }
+
         printGameplayUIPrompt();
     }
 

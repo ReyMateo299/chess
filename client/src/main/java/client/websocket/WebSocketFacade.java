@@ -1,5 +1,6 @@
 package client.websocket;
 
+import chess.ChessGame;
 import client.ResponseException;
 
 import com.google.gson.Gson;
@@ -68,7 +69,8 @@ public class WebSocketFacade extends Endpoint {
     }
 
     private void handleLoadGameMessage(LoadGameMessage loadGameMessage) {
-        serverMessageHandler.printLoadGame(loadGameMessage);
+        ChessGame game = new Gson().fromJson(loadGameMessage.getGame(), ChessGame.class);
+        serverMessageHandler.printLoadGame(game, loadGameMessage.getTeamColor());
     }
 
     private void handleNotification(NotificationMessage notification) {
