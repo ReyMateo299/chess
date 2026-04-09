@@ -2,6 +2,8 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
@@ -21,6 +23,7 @@ import websocket.commands.*;
 import websocket.messages.*;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -128,6 +131,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         ChessGame game = gameData.game();
         TeamColor teamTurn = game.getTeamTurn();
 
+        if (playerColor != teamTurn) {
+            var errorMessage = new ErrorMessage("ERROR: can't make a move now");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        ChessMove move = command.getMove();
+        ChessPosition startPosition = move.getStartPosition();
+//        ChessPosition endPosition = move.getEndPosition();
+        Collection<ChessMove> validMoves = game.validMoves(startPosition);
+
+        if (!validMoves.contains(move)) {
+            var errorMessage = new ErrorMessage("ERROR: invalid move");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        //TODO: Add fuctionality to update the chess game
     }
 
     private void resign(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
