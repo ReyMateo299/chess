@@ -6,9 +6,7 @@ import results.*;
 import com.google.gson.Gson;
 
 import java.net.http.HttpClient;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import java.net.*;
 import java.net.http.*;
@@ -57,6 +55,13 @@ public class ServerFacade {
         var httpRequest = buildRequestAuthtoken("POST", path, request, request.authToken());
         var response = sendRequest(httpRequest);
         return handleResponse(response, CreateGameResult.class);
+    }
+
+    public GetGamesResult getGames(GetGamesRequest request) throws ResponseException {
+        var path = "/realgames";
+        var httpRequest = buildRequestAuthtoken("GET", path, request, request.authToken());
+        var response = sendRequest(httpRequest);
+        return handleResponse(response, GetGamesResult.class);
     }
 
     public void joinGame(JoinGameRequest request) throws ResponseException {

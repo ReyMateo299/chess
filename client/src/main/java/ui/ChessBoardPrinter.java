@@ -13,7 +13,7 @@ public class ChessBoardPrinter {
         StringBuilder sb = new StringBuilder();
         sb.append(printLetterRow(color)).append(nextLine());
 
-        if (color == TeamColor.WHITE) {
+        if (color == null || color == TeamColor.WHITE) {
             sb.append(printCheckersWhite(board));
         } else {
             sb.append(printCheckersBlack(board));

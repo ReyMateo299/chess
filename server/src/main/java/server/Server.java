@@ -41,6 +41,7 @@ public class Server {
         javalin.post("/game", this::createGame);
         javalin.put("/game", this::joinGame);
         javalin.delete("/db", this::clear);
+        javalin.get("/realgames", this::getGames);
         javalin.exception(ServiceException.class, this::exceptionHandler);
 
         AuthDAO authDAO;
@@ -115,6 +116,12 @@ public class Server {
     private void logout(Context ctx) throws ServiceException {
         LogoutRequest logoutRequest = new LogoutRequest(ctx.header("authorization"));
         userService.logout(logoutRequest);
+    }
+
+    private void getGames(Context ctx) throws ServiceException {
+        GetGamesRequest getGamesRequest = new GetGamesRequest(ctx.header("authorization"));
+        GetGamesResult result = gameService.getGames(getGamesRequest);
+        ctx.result(new Gson().toJson(result));
     }
 
     private void listGames(Context ctx) throws ServiceException {

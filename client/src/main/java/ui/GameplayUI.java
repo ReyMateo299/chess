@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessGame.TeamColor;
+import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -8,6 +10,9 @@ import client.ResponseException;
 import client.ServerFacade;
 import client.State;
 import client.websocket.WebSocketFacade;
+import model.GameData;
+import requests.GetGamesRequest;
+import results.GetGamesResult;
 import websocket.commands.MakeMoveCommand;
 
 import java.util.Arrays;
@@ -22,16 +27,18 @@ public class GameplayUI {
     private String authToken;
     private WebSocketFacade ws;
     private Integer gameID;
+    private TeamColor playerColor;
 
     public GameplayUI(ServerFacade server) {
         this.server = server;
         this.scanner = new Scanner(System.in);
     }
 
-    public UIResult run(String authToken, Integer gameID, WebSocketFacade ws) {
+    public UIResult run(String authToken, Integer gameID, TeamColor playerColor, WebSocketFacade ws) {
         this.authToken = authToken;
         this.ws = ws;
         this.gameID = gameID;
+        this.playerColor = playerColor;
 
         printPrompt();
         String line = scanner.nextLine();
@@ -59,13 +66,23 @@ public class GameplayUI {
     }
 
     private UIResult redrawBoard() throws ResponseException {
-        String message = "redraw board\n";
+        GetGamesResult result = server.getGames(new GetGamesRequest(authToken));
+        ChessGame game = null;
+        for (GameData gameData : result.games()) {
+            if (gameData.gameID() == gameID) {
+                game = gameData.game();
+            }
+        }
+        if (game == null) {
+            return new UIResult("No Game found", State.GAMEPLAY, authToken, null);
+        }
+        String message = ChessBoardPrinter.printChessBoard(playerColor, game.getBoard());
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
     private UIResult leaveGame() throws ResponseException {
         String message = "Leaving game...\n";
-        return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(false, 0));
+        return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(false, gameID));
     }
 
     private UIResult makeMove(String... params) throws ResponseException {

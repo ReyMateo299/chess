@@ -5,16 +5,14 @@ import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
 import model.AuthData;
 import model.GameData;
+import requests.GetGamesRequest;
 import service.exceptions.*;
 
-import requests.CreateGameRequest;
-import requests.JoinGameRequest;
-import requests.ListGamesRequest;
-import results.CreateGameResult;
-import results.GameResult;
-import results.ListGamesResult;
+import requests.*;
+import results.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 public class GameService {
@@ -40,6 +38,16 @@ public class GameService {
             }
             GameData newGame = gameDAO.createGame(request.gameName());
             return new CreateGameResult(newGame.gameID());
+        } catch (DataAccessException e) {
+            throw new ServiceException("Internal Server Error");
+        }
+    }
+
+    public GetGamesResult getGames(GetGamesRequest request) throws ServiceException {
+        try {
+            checkAuthorization(request.authToken());
+            Collection<GameData> games = gameDAO.listGames();
+            return new GetGamesResult(games);
         } catch (DataAccessException e) {
             throw new ServiceException("Internal Server Error");
         }

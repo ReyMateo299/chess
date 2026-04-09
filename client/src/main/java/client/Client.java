@@ -26,6 +26,8 @@ public class Client implements ServerMessageHandler {
     private State state;
     private String authToken;
     private Integer gameID;
+    private String currChessBoard;
+    private TeamColor playerColor;
 
     public Client(String serverUrl) throws Exception {
         this.serverUrl = serverUrl;
@@ -37,6 +39,8 @@ public class Client implements ServerMessageHandler {
         gameplayUI = new GameplayUI(server);
         authToken = null;
         gameID = null;
+        currChessBoard = null;
+        playerColor = null;
     }
 
     public void run() {
@@ -48,7 +52,7 @@ public class Client implements ServerMessageHandler {
             switch (state) {
                 case PRELOGIN -> result = preloginUI.run();
                 case POSTLOGIN -> result = postloginUI.run(authToken);
-                case GAMEPLAY -> result = gameplayUI.run(authToken, gameID, ws);
+                case GAMEPLAY -> result = gameplayUI.run(authToken, gameID, playerColor, ws);
             }
             updateVariables(result);
         }
@@ -92,11 +96,7 @@ public class Client implements ServerMessageHandler {
 
     public void printLoadGame(ChessGame game, TeamColor teamColor) {
         System.out.println(SET_TEXT_COLOR_RED + "Load Message: ");
-        if (teamColor == TeamColor.WHITE || teamColor == null) {
-            System.out.println(ChessBoardPrinter.printChessBoard(TeamColor.WHITE, game.getBoard()));
-        } else {
-            System.out.println(ChessBoardPrinter.printChessBoard(TeamColor.BLACK, game.getBoard()));
-        }
+        System.out.println(ChessBoardPrinter.printChessBoard(teamColor, game.getBoard()));
 
         printGameplayUIPrompt();
     }
