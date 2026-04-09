@@ -3,9 +3,11 @@ package client;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessGame.TeamColor;
+import chess.ChessMove;
 import client.websocket.ServerMessageHandler;
 import ui.*;
 import client.websocket.WebSocketFacade;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -23,6 +25,7 @@ public class Client implements ServerMessageHandler {
     private WebSocketFacade ws;
     private State state;
     private String authToken;
+    private Integer gameID;
 
     public Client(String serverUrl) throws Exception {
         this.serverUrl = serverUrl;
@@ -33,6 +36,7 @@ public class Client implements ServerMessageHandler {
         postloginUI = new PostloginUI(server);
         gameplayUI = new GameplayUI(server);
         authToken = null;
+        gameID = null;
     }
 
     public void run() {
@@ -44,7 +48,7 @@ public class Client implements ServerMessageHandler {
             switch (state) {
                 case PRELOGIN -> result = preloginUI.run();
                 case POSTLOGIN -> result = postloginUI.run(authToken);
-                case GAMEPLAY -> result = gameplayUI.run(authToken);
+                case GAMEPLAY -> result = gameplayUI.run(authToken, gameID, ws);
             }
             updateVariables(result);
         }
@@ -55,8 +59,12 @@ public class Client implements ServerMessageHandler {
         state = result.nextState();
         authToken = result.authToken();
         OpenWebsocket openWebsocket = result.openWebsocket();
-        if (openWebsocket != null && openWebsocket.open() == true) {
-            initiateGameplay(openWebsocket);
+        if (openWebsocket != null) {
+            if (openWebsocket.open() == true) {
+                initiateGameplay(openWebsocket);
+            } else {
+                terminateGameplay(openWebsocket);
+            }
         }
     }
 
@@ -65,8 +73,20 @@ public class Client implements ServerMessageHandler {
             ws = new WebSocketFacade(serverUrl, this);
             ws.sendCommand(new UserGameCommand(
                     UserGameCommand.CommandType.CONNECT, authToken, openWebsocket.gameID()));
+            gameID = openWebsocket.gameID();
         } catch (ResponseException e) {
             System.out.println("Error connecting to game.");
+        }
+    }
+
+    private void terminateGameplay(OpenWebsocket openWebsocket) {
+        try {
+            ws.sendCommand(new UserGameCommand(
+                    UserGameCommand.CommandType.LEAVE, authToken, openWebsocket.gameID()));
+            gameID = null;
+            ws = null;
+        } catch (ResponseException e) {
+            System.out.println("Error leaving game.");
         }
     }
 

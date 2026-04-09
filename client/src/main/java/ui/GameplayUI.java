@@ -1,9 +1,14 @@
 package ui;
 
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
+import client.OpenWebsocket;
 import client.ResponseException;
 import client.ServerFacade;
 import client.State;
 import client.websocket.WebSocketFacade;
+import websocket.commands.MakeMoveCommand;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -15,14 +20,18 @@ public class GameplayUI {
 //    private final WebSocketFacade ws;
     private Scanner scanner;
     private String authToken;
+    private WebSocketFacade ws;
+    private Integer gameID;
 
     public GameplayUI(ServerFacade server) {
         this.server = server;
         this.scanner = new Scanner(System.in);
     }
 
-    public UIResult run(String authToken) {
+    public UIResult run(String authToken, Integer gameID, WebSocketFacade ws) {
         this.authToken = authToken;
+        this.ws = ws;
+        this.gameID = gameID;
 
         printPrompt();
         String line = scanner.nextLine();
@@ -39,7 +48,7 @@ public class GameplayUI {
             return switch (cmd) {
                 case "redraw" -> redrawBoard();
                 case "leave" -> leaveGame();
-                case "make" -> makeMove();
+                case "make" -> makeMove(params);
                 case "resign" -> resign();
                 case "highlight" -> highlightMoves();
                 default -> help();
@@ -56,11 +65,15 @@ public class GameplayUI {
 
     private UIResult leaveGame() throws ResponseException {
         String message = "Leaving game...\n";
-        return new UIResult(message, State.POSTLOGIN, authToken, null);
+        return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(false, 0));
     }
 
-    private UIResult makeMove() throws ResponseException {
+    private UIResult makeMove(String... params) throws ResponseException {
         String message = "make move\n";
+        ws.sendCommand(new MakeMoveCommand(
+                authToken, gameID, new ChessMove(
+                        new ChessPosition(1, 1), new ChessPosition(1, 1), ChessPiece.PieceType.QUEEN)
+        ));
         return new UIResult(message, State.GAMEPLAY, authToken, null);
     }
 
