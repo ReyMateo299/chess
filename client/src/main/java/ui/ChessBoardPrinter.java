@@ -1,142 +1,125 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessPiece;
+import chess.ChessGame.TeamColor;
+import chess.ChessPosition;
+
 import static ui.EscapeSequences.*;
 
 public class ChessBoardPrinter {
 
-    public static String printChessBoard(String color) {
+    public static String printChessBoard(TeamColor color, ChessBoard board) {
         StringBuilder sb = new StringBuilder();
         sb.append(printLetterRow(color)).append(nextLine());
 
-        if (color.equals("WHITE")) {
-            sb.append(printCheckersWhite());
+        if (color == TeamColor.WHITE) {
+            sb.append(printCheckersWhite(board));
         } else {
-            sb.append(printCheckersBlack());
+            sb.append(printCheckersBlack(board));
         }
 
         sb.append(printLetterRow(color)).append(nextLine());
         return sb.toString();
     }
 
-    private static String printCheckersWhite() {
-
-        return SET_BORDER_CONFIGS + " 8 " +
-                SET_TEXT_COLOR_BLUE + printLastRowCheckers("WHITE", "WHITE") +
-                SET_BORDER_CONFIGS + " 8 " + nextLine() +
-
-                SET_BORDER_CONFIGS + " 7 " +
-                SET_TEXT_COLOR_BLUE + printRow("BLACK", " P ") +
-                SET_BORDER_CONFIGS + " 7 " + nextLine() +
-
-                printEmptyRows(new String[]{" 6 ", " 5 ", " 4 ", " 3 "}) +
-
-                SET_BORDER_CONFIGS + " 2 " +
-                SET_TEXT_COLOR_RED + printRow("WHITE", " P ") +
-                SET_BORDER_CONFIGS + " 2 " + nextLine() +
-
-                SET_BORDER_CONFIGS + " 1 " +
-                SET_TEXT_COLOR_RED + printLastRowCheckers("BLACK", "WHITE") +
-                SET_BORDER_CONFIGS + " 1 " + nextLine();
-    }
-
-    private static String printCheckersBlack() {
-
-        return SET_BORDER_CONFIGS + " 1 " +
-                SET_TEXT_COLOR_RED + printLastRowCheckers("WHITE", "BLACK") +
-                SET_BORDER_CONFIGS + " 1 " + nextLine() +
-
-                SET_BORDER_CONFIGS + " 2 " +
-                SET_TEXT_COLOR_RED + printRow("BLACK", " P ") +
-                SET_BORDER_CONFIGS + " 2 " + nextLine() +
-
-                printEmptyRows(new String[]{" 3 ", " 4 ", " 5 ", " 6 "}) +
-
-                SET_BORDER_CONFIGS + " 7 " +
-                SET_TEXT_COLOR_BLUE + printRow("WHITE", " P ") +
-                SET_BORDER_CONFIGS + " 7 " + nextLine() +
-
-                SET_BORDER_CONFIGS + " 8 " +
-                SET_TEXT_COLOR_BLUE + printLastRowCheckers("BLACK", "BLACK") +
-                SET_BORDER_CONFIGS + " 8 " + nextLine();
-    }
-
-    private static String printEmptyRows(String[] rows) {
+    private static String printCheckersWhite(ChessBoard board) {
         StringBuilder sb = new StringBuilder();
-        int i = 0;
-        String currTile = "WHITE";
-        while (i < 4) {
-            sb.append(SET_BORDER_CONFIGS).append(rows[i]);
-            sb.append(printRow(currTile, "   "));
-            sb.append(SET_BORDER_CONFIGS).append(rows[i]).append(nextLine());
-            currTile = swapTile(currTile);
-            i++;
+
+        for (int i = 8; i > 0; i--) {
+            if (i % 2 == 0) {
+                sb.append(printRow(TeamColor.WHITE, i, board));
+            } else {
+                sb.append(printRow(TeamColor.BLACK, i, board));
+            }
+            sb.append(nextLine());
         }
         return sb.toString();
     }
 
-    private static String printLetterRow(String color) {
-        if (color.equals("WHITE")) {
-            return SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    a  b  c  d  e  f  g  h    ";
-        }
-        return SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK + "    h  g  f  e  d  c  b  a    ";
-    }
+    private static String printCheckersBlack(ChessBoard board) {
+        StringBuilder sb = new StringBuilder();
 
-    private static String printRow(String startingTile, String tile) {
-        String currTile = startingTile;
-        StringBuilder result = new StringBuilder();
-        int i = 0;
-
-        while (i < 8) {
-            if (currTile.equals("BLACK")) {
-                result.append(SET_BG_COLOR_BLACK);
-                result.append(tile);
-                currTile = "WHITE";
+        for (int i = 1; i < 9; i++) {
+            if (i % 2 == 1) {
+                sb.append(printRow(TeamColor.WHITE, i, board));
             } else {
-                result.append(SET_BG_COLOR_WHITE);
-                result.append(tile);
-                currTile = "BLACK";
+                sb.append(printRow(TeamColor.BLACK, i, board));
             }
-            i++;
+            sb.append(nextLine());
         }
-        return result.toString();
+        return sb.toString();
     }
 
-    private static String printLastRowCheckers(String startingTile, String color) {
-        String currTile = startingTile;
-        StringBuilder result = new StringBuilder();
-        String[] tiles;
-        if (color.equals("WHITE")) {
-            tiles = new String[]{" R ", " N ", " B ", " Q ", " K ", " B ", " N ", " R "};
-        } else {
-            tiles = new String[]{" R ", " N ", " B ", " K ", " Q ", " B ", " N ", " R "};
-        }
+    private static String printRow(TeamColor startingTile, Integer i, ChessBoard board) {
+        StringBuilder sb = new StringBuilder();
 
-        int i = 0;
+        sb.append(setBorderConfigs());
+        sb.append(" ").append(i).append(" ");
+        sb.append(SET_TEXT_COLOR_BLUE);
 
-        while (i < 8) {
-            if (currTile.equals("BLACK")) {
-                result.append(SET_BG_COLOR_BLACK);
-                result.append(tiles[i]);
-                currTile = "WHITE";
+        TeamColor tileColor = startingTile;
+        for (int j = 1; j < 9; j++) {
+
+            if (tileColor == TeamColor.WHITE) {
+                sb.append(SET_BG_COLOR_WHITE);
             } else {
-                result.append(SET_BG_COLOR_WHITE);
-                result.append(tiles[i]);
-                currTile = "BLACK";
+                sb.append(SET_BG_COLOR_BLACK);
             }
-            i++;
+
+            sb.append(printSquare(board.getPiece(new ChessPosition(i, j))));
+            tileColor = swapTile(tileColor);
         }
-        return result.toString();
+
+        sb.append(setBorderConfigs());
+        sb.append(" ").append(i).append(" ");
+
+        return sb.toString();
     }
 
-    private static String swapTile(String currTile) {
-        if (currTile.equals("BLACK")) {
-            return "WHITE";
+    private static String printSquare(ChessPiece piece) {
+        if (piece == null) {
+            return "   ";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        if (piece.getTeamColor() == TeamColor.WHITE) {
+            sb.append(SET_TEXT_COLOR_RED);
         } else {
-            return "BLACK";
+            sb.append(SET_TEXT_COLOR_BLUE);
+        }
+        switch (piece.getPieceType()) {
+            case PAWN -> sb.append(" P ");
+            case ROOK -> sb.append(" R ");
+            case KNIGHT -> sb.append(" N ");
+            case BISHOP -> sb.append(" B ");
+            case QUEEN -> sb.append(" Q ");
+            case KING -> sb.append(" K ");
+        }
+
+        return sb.toString();
+    }
+
+    private static String printLetterRow(TeamColor color) {
+        if (color == TeamColor.WHITE) {
+            return setBorderConfigs() + "    a  b  c  d  e  f  g  h    ";
+        }
+        return setBorderConfigs() + "    h  g  f  e  d  c  b  a    ";
+    }
+
+    private static TeamColor swapTile(TeamColor tileColor) {
+        if (tileColor == TeamColor.BLACK) {
+            return TeamColor.WHITE;
+        } else {
+            return TeamColor.BLACK;
         }
     }
 
     private static String nextLine() {
         return RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
+    }
+
+    public static String setBorderConfigs() {
+        return SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_BLACK;
     }
 }
