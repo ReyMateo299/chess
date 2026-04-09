@@ -129,8 +129,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             playerColor = TeamColor.BLACK;
         }
 
+        if (playerColor == null) {
+            var errorMessage = new ErrorMessage("ERROR: observers can't make moves");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
         ChessGame game = gameData.game();
         TeamColor teamTurn = game.getTeamTurn();
+
+        if (teamTurn == null) {
+            var errorMessage = new ErrorMessage("ERROR: game is over. Type leave to leave game");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
 
         if (playerColor != teamTurn) {
             var errorMessage = new ErrorMessage("ERROR: can't make a move now");
@@ -149,12 +161,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        //TODO: Add fuctionality to update the chess game
+        // Update ChessGame in database
         try {
             gameDAO.updateGameWithMove(gameID, move);
         } catch (DataAccessException e) {
             throw new ServiceException(e.getMessage());
         }
+
+        game = getGame(gameID).game();
 
         // Send Load_game message
         var loadGameMessage = new LoadGameMessage(new Gson().toJson(game), playerColor);
@@ -168,26 +182,33 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         connections.broadcast(gameID, session, serializedNotification);
 
         // Send move result notification to all clients
-        if (game.isInCheck(TeamColor.WHITE)) {
-            message = "WHITE is in check";
-            notification = new NotificationMessage(message);
-            serializedNotification = new Gson().toJson(notification);
-            connections.broadcast(gameID, null, serializedNotification);
-        }
-        if (game.isInCheck(TeamColor.BLACK)) {
-            message = "BLACK is in check";
-            notification = new NotificationMessage(message);
-            serializedNotification = new Gson().toJson(notification);
-            connections.broadcast(gameID, null, serializedNotification);
-        }
         if (game.isInStalemate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
             message = "Stalemate!";
             notification = new NotificationMessage(message);
             serializedNotification = new Gson().toJson(notification);
             connections.broadcast(gameID, null, serializedNotification);
-        }
-        if (game.isInCheckmate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
+            try {
+                gameDAO.endGame(gameID);
+            } catch (DataAccessException e) {
+                throw new ServiceException(e.getMessage());
+            }
+        } else if (game.isInCheckmate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
             message = "Checkmate!";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+            try {
+                gameDAO.endGame(gameID);
+            } catch (DataAccessException e) {
+                throw new ServiceException(e.getMessage());
+            }
+        } else if (game.isInCheck(TeamColor.WHITE)) {
+            message = "WHITE is in check";
+            notification = new NotificationMessage(message);
+            serializedNotification = new Gson().toJson(notification);
+            connections.broadcast(gameID, null, serializedNotification);
+        } else if (game.isInCheck(TeamColor.BLACK)) {
+            message = "BLACK is in check";
             notification = new NotificationMessage(message);
             serializedNotification = new Gson().toJson(notification);
             connections.broadcast(gameID, null, serializedNotification);
@@ -201,6 +222,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         if (!userExists(user, session)) {
             return;
         }
+
+
 
         String message = String.format("%s has resigned. The game has ended.", user.username());
         var notification = new NotificationMessage(message);

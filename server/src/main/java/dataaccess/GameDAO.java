@@ -12,9 +12,11 @@ public interface GameDAO {
 
     GameData updateGame(int gameID, String userName, String playerColor) throws DataAccessException;
 
-    GameData removePlayer(int gameID, String playerColor) throws DataAccessException;
+    void removePlayer(int gameID, String playerColor) throws DataAccessException;
 
-    GameData updateGameWithMove(int gameID, ChessMove move) throws DataAccessException;
+    void updateGameWithMove(int gameID, ChessMove move) throws DataAccessException;
+
+    void endGame(int gameID) throws DataAccessException;
 
     GameData getGame(String gameName) throws DataAccessException;
 

@@ -3,7 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import chess.ChessMove;
 import model.GameData;
-import model.UserData;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,13 +31,13 @@ public class MemoryGameDAO implements GameDAO {
         return updatedGame;
     }
 
-    public GameData removePlayer(int gameID, String playerColor) throws DataAccessException {
-        return new GameData(0, "TEST", "TEST", "TEST", new ChessGame());
+    public void removePlayer(int gameID, String playerColor) throws DataAccessException {
     }
 
-    public GameData updateGameWithMove(int gameID, ChessMove move) throws DataAccessException {
-        return new GameData(0, "TEST", "TEST", "TEST", new ChessGame());
+    public void updateGameWithMove(int gameID, ChessMove move) throws DataAccessException {
     }
+
+    public void endGame(int gameID) throws DataAccessException {}
 
     public GameData getGame(String gameName) {
         for (GameData gameData : games.values()) {
