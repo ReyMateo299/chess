@@ -216,14 +216,46 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(String authToken, Integer gameID, Session session) throws ServiceException, IOException {
-        // TODO: Have the server mark the game as over
         AuthData user = getUser(authToken);
+        GameData gameData = getGame(gameID);
 
         if (!userExists(user, session)) {
             return;
         }
 
+        if (gameData == null) {
+            var errorMessage = new ErrorMessage("ERROR: game doesn't exist");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
 
+        String username = user.username();
+        TeamColor playerColor = null;
+
+        if (gameData.whiteUsername().equals(username)) {
+            playerColor = TeamColor.WHITE;
+        } else if (gameData.blackUsername().equals(username)) {
+            playerColor = TeamColor.BLACK;
+        }
+
+        if (playerColor == null) {
+            var errorMessage = new ErrorMessage("ERROR: observers can't resign");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        ChessGame game = gameData.game();
+        if (game.getTeamTurn() == null) {
+            var errorMessage = new ErrorMessage("ERROR: Game is already over");
+            session.getRemote().sendString(new Gson().toJson(errorMessage));
+            return;
+        }
+
+        try {
+            gameDAO.endGame(gameID);
+        } catch (DataAccessException e) {
+            throw new ServiceException(e.getMessage());
+        }
 
         String message = String.format("%s has resigned. The game has ended.", user.username());
         var notification = new NotificationMessage(message);
