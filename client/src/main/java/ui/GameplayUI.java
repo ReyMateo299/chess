@@ -56,7 +56,7 @@ public class GameplayUI {
                 case "leave" -> leaveGame();
                 case "make" -> makeMove(params);
                 case "resign" -> resign();
-                case "highlight" -> highlightMoves();
+                case "highlight" -> highlightMoves(params);
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -69,7 +69,7 @@ public class GameplayUI {
         if (game == null) {
             throw new ResponseException("Game not found");
         }
-        String message = ChessBoardPrinter.printChessBoard(playerColor, game.getBoard());
+        String message = ChessBoardPrinter.printChessBoard(playerColor, game, null);
         return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
     }
 
@@ -81,22 +81,16 @@ public class GameplayUI {
     private UIResult makeMove(String... params) throws ResponseException {
         if (params.length >= 1 && params[0].length() == 4) {
             String moveInput = params[0];
-            Map<Character, Integer> cols = new HashMap<>(Map.of(
-                    'a', 1,
-                    'b', 2,
-                    'c', 3,
-                    'd', 4,
-                    'e', 5,
-                    'f', 6,
-                    'g', 7,
-                    'h', 8));
-            Character startColChar = moveInput.charAt(0);
-            Character endColChar = moveInput.charAt(2);
-            if (!cols.containsKey(startColChar) || !cols.containsKey(endColChar)) {
+
+            Integer startCol;
+            Integer endCol;
+
+            try {
+                startCol = getCol(moveInput.charAt(0));
+                endCol = getCol(moveInput.charAt(2));
+            } catch (ResponseException e) {
                 throw new ResponseException("Invalid move. Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
             }
-            Integer startCol = cols.get(startColChar);
-            Integer endCol = cols.get(endColChar);
 
             Set<Character> rows = new HashSet<>(Set.of('1', '2', '3', '4', '5', '6', '7', '8'));
             Character startRowChar = moveInput.charAt(1);
@@ -165,9 +159,62 @@ public class GameplayUI {
         return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
     }
 
-    private UIResult highlightMoves() throws ResponseException {
-        String message = "highlight\n";
-        return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
+    private UIResult highlightMoves(String... params) throws ResponseException {
+        if (params.length >= 1 && params[0].length() == 2) {
+            String positionInput = params[0];
+            Integer startCol;
+            try {
+                startCol = getCol(positionInput.charAt(0));
+            } catch (ResponseException e) {
+                throw new ResponseException("Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
+            }
+
+            Set<Character> rows = new HashSet<>(Set.of('1', '2', '3', '4', '5', '6', '7', '8'));
+            Character startRowChar = positionInput.charAt(1);
+            if (!rows.contains(startRowChar)) {
+                throw new ResponseException("Invalid position. Expected form: highlight <StartPosition>    Example: highlight e2");
+            }
+            int startRow = Character.getNumericValue(positionInput.charAt(1));
+
+            var startPosition = new ChessPosition(startRow, startCol);
+
+            ChessGame game = getChessGame();
+            if (game == null) {
+                throw new ResponseException("Game not found");
+            }
+            String message = ChessBoardPrinter.printChessBoard(playerColor, game, startPosition);
+            return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
+        }
+        throw new ResponseException("Expected form: highlight <StartPosition>    Example: highlight e2");
+    }
+
+    private Integer getCol(Character colChar) throws ResponseException {
+        Map<Character, Integer> cols;
+        if (playerColor == TeamColor.WHITE) {
+            cols = new HashMap<>(Map.of(
+                    'a', 1,
+                    'b', 2,
+                    'c', 3,
+                    'd', 4,
+                    'e', 5,
+                    'f', 6,
+                    'g', 7,
+                    'h', 8));
+        } else {
+            cols = new HashMap<>(Map.of(
+                    'a', 8,
+                    'b', 7,
+                    'c', 6,
+                    'd', 5,
+                    'e', 4,
+                    'f', 3,
+                    'g', 2,
+                    'h', 1));
+        }
+        if (!cols.containsKey(colChar)) {
+            throw new ResponseException("getCol Failed");
+        }
+        return cols.get(colChar);
     }
 
     private ChessGame getChessGame() throws ResponseException {

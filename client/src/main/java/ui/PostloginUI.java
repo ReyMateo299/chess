@@ -28,7 +28,6 @@ public class PostloginUI {
     }
 
     public UIResult run(String authToken) {
-//        System.out.println("\n" + RESET_TEXT_COLOR + "Type help to continue");
         this.authToken = authToken;
         this.playerColor = null;
 
