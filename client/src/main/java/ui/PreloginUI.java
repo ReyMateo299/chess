@@ -42,7 +42,7 @@ public class PreloginUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.PRELOGIN, null, null);
+            return new UIResult(ex.getMessage(), State.PRELOGIN, null, null, null);
         }
     }
 
@@ -51,7 +51,7 @@ public class PreloginUI {
             RegisterRequest request = new RegisterRequest(params[0], params[1], params[2]);
             RegisterResult result = server.register(request);
             String message = "You successfully registered as user: " + result.username() + ". Type help to continue.\n";
-            return new UIResult(message, State.POSTLOGIN, result.authToken(), null);
+            return new UIResult(message, State.POSTLOGIN, result.authToken(), null, null);
         }
         throw new ResponseException("Expected form: register <USERNAME> <PASSWORD> <EMAIL>\n");
     }
@@ -61,14 +61,14 @@ public class PreloginUI {
             LoginRequest request = new LoginRequest(params[0], params[1]);
             LoginResult result = server.login(request);
             String message = "You successfully logged in as user: " + result.username() + ". Type help to continue.\n";
-            return new UIResult(message, State.POSTLOGIN, result.authToken(), null);
+            return new UIResult(message, State.POSTLOGIN, result.authToken(), null, null);
         }
         throw new ResponseException("Expected from: login <USERNAME> <PASSWORD>\n");
     }
 
     private UIResult quit() {
         String message = "Thanks for playing! Exiting the application...\n";
-        return new UIResult(message, State.QUIT, null, null);
+        return new UIResult(message, State.QUIT, null, null, null);
     }
 
     private UIResult help() {
@@ -78,7 +78,7 @@ public class PreloginUI {
                 - quit -> playing chess
                 - help -> with possible commands
                 """;
-        return new UIResult(message, State.PRELOGIN, null, null);
+        return new UIResult(message, State.PRELOGIN, null, null, null);
     }
 
     private void printPrompt() {
@@ -88,6 +88,6 @@ public class PreloginUI {
     private UIResult clear() throws ResponseException {
         String message = "Clearing database...\n";
         server.clear();
-        return new UIResult(message, State.PRELOGIN, null, null);
+        return new UIResult(message, State.PRELOGIN, null, null, null);
     }
 }

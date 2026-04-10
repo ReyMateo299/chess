@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.OpenWebsocket;
 import client.ResponseException;
 import client.ServerFacade;
@@ -18,6 +19,7 @@ public class PostloginUI {
     private final Scanner scanner;
     private String authToken;
     private ArrayList<GameResult> listedGames;
+    private ChessGame.TeamColor playerColor;
 
     public PostloginUI(ServerFacade server) {
         this.server = server;
@@ -28,6 +30,7 @@ public class PostloginUI {
     public UIResult run(String authToken) {
 //        System.out.println("\n" + RESET_TEXT_COLOR + "Type help to continue");
         this.authToken = authToken;
+        this.playerColor = null;
 
         printPrompt();
         String line = scanner.nextLine();
@@ -52,14 +55,14 @@ public class PostloginUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken, null);
+            return new UIResult(ex.getMessage(), State.POSTLOGIN, authToken, null, null);
         }
     }
 
     private UIResult logout() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
         String message = "Logging out...\n";
-        return new UIResult(message, State.PRELOGIN, null, null);
+        return new UIResult(message, State.PRELOGIN, null, null, null);
     }
 
     private UIResult createGame(String... params) throws ResponseException {
@@ -67,7 +70,7 @@ public class PostloginUI {
             CreateGameRequest request = new CreateGameRequest(authToken, params[0]);
             CreateGameResult result = server.createGame(request);
             String message = "Successfully created game: " + result.gameID() + "\n";
-            return new UIResult(message, State.POSTLOGIN, authToken, null);
+            return new UIResult(message, State.POSTLOGIN, authToken, null, null);
         }
         throw new ResponseException("Expected form: create <NAME>\n");
     }
@@ -92,10 +95,10 @@ public class PostloginUI {
         listedGames = newListedGames;
 
         if (listedGames.isEmpty()) {
-            return new UIResult("No existing games.\n", State.POSTLOGIN, authToken, null);
+            return new UIResult("No existing games.\n", State.POSTLOGIN, authToken, null, null);
         }
 
-        return new UIResult(message.toString(), State.POSTLOGIN, authToken, null);
+        return new UIResult(message.toString(), State.POSTLOGIN, authToken, null, null);
     }
 
     private UIResult joinGame(String... params) throws ResponseException {
@@ -113,10 +116,14 @@ public class PostloginUI {
             int realGameID = listedGames.get(gameID).gameID();
             JoinGameRequest request = new JoinGameRequest(authToken, params[1].toUpperCase(), realGameID);
             server.joinGame(request);
-//            String message = "Successfully joined game: " + params[0] + "\n" +
-//                    ChessBoardPrinter.printChessBoard(params[1].toUpperCase());
+            if (params[1].equals("white")) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            } else {
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+
             String message = "Joining game <" + params[0] + "> as a player ...\n";
-            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID)); // DO: Change State to GAMEPLAY
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID), playerColor);
         }
         throw new ResponseException("Expected form: play <ID> [WHITE|BLACK]\n");
     }
@@ -134,10 +141,8 @@ public class PostloginUI {
             }
 
             int realGameID = listedGames.get(gameID).gameID();
-//            String message = "Successfully joined game <" + params[0] + "> as an observer." + "\n" +
-//                    ChessBoardPrinter.printChessBoard("WHITE");
             String message = "Joining game <" + params[0] + "> as an observer ...\n";
-            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID));
+            return new UIResult(message, State.GAMEPLAY, authToken, new OpenWebsocket(true, realGameID), null);
         }
         throw new ResponseException("Expected form: observe <ID>\n");
     }
@@ -145,7 +150,7 @@ public class PostloginUI {
     private UIResult quit() throws ResponseException {
         server.logout(new LogoutRequest(authToken));
         String message = "Thanks for playing! Exiting the application...\n";
-        return new UIResult(message, State.QUIT, null, null);
+        return new UIResult(message, State.QUIT, null, null, null);
     }
 
     private UIResult help() {
@@ -158,7 +163,7 @@ public class PostloginUI {
                 - quit -> playing chess
                 - help -> with possible commands
                 """;
-        return new UIResult(message, State.POSTLOGIN, authToken, null);
+        return new UIResult(message, State.POSTLOGIN, authToken, null, null);
     }
 
     private void printPrompt() {

@@ -84,9 +84,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String username = user.username();
         TeamColor color = null;
 
-        if (game.whiteUsername().equals(username)) {
+        if (game.whiteUsername() != null && game.whiteUsername().equals(username)) {
             color = TeamColor.WHITE;
-        } else if (game.blackUsername().equals(username)) {
+        } else if (game.blackUsername() != null && game.blackUsername().equals(username)) {
             color = TeamColor.BLACK;
         }
 

@@ -47,7 +47,7 @@ public class Client implements ServerMessageHandler {
         System.out.println(RESET_TEXT_COLOR + "👑 Welcome to 240 Chess! Type " + SET_TEXT_COLOR_BLUE +
                 "help" + RESET_TEXT_COLOR + " to get started. 👑");
 
-        UIResult result = new UIResult("", state, null, null);
+        UIResult result = new UIResult("", state, null, null, null);
         while (state != State.QUIT) {
             switch (state) {
                 case PRELOGIN -> result = preloginUI.run();
@@ -63,6 +63,7 @@ public class Client implements ServerMessageHandler {
         state = result.nextState();
         authToken = result.authToken();
         OpenWebsocket openWebsocket = result.openWebsocket();
+        playerColor = result.playerColor();
         if (openWebsocket != null) {
             if (openWebsocket.open() == true) {
                 initiateGameplay(openWebsocket);
@@ -94,9 +95,9 @@ public class Client implements ServerMessageHandler {
         }
     }
 
-    public void printLoadGame(ChessGame game, TeamColor teamColor) {
+    public void printLoadGame(ChessGame game) {
         System.out.println(SET_TEXT_COLOR_RED + "Load Message: ");
-        System.out.println(ChessBoardPrinter.printChessBoard(teamColor, game.getBoard()));
+        System.out.println(ChessBoardPrinter.printChessBoard(playerColor, game.getBoard()));
 
         printGameplayUIPrompt();
     }

@@ -60,7 +60,7 @@ public class GameplayUI {
                 default -> help();
             };
         } catch (ResponseException ex) {
-            return new UIResult(ex.getMessage(), State.GAMEPLAY, authToken, null);
+            return new UIResult(ex.getMessage(), State.GAMEPLAY, authToken, null, playerColor);
         }
     }
 
@@ -70,12 +70,12 @@ public class GameplayUI {
             throw new ResponseException("Game not found");
         }
         String message = ChessBoardPrinter.printChessBoard(playerColor, game.getBoard());
-        return new UIResult(message, State.GAMEPLAY, authToken, null);
+        return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
     }
 
     private UIResult leaveGame() throws ResponseException {
         String message = "Leaving game...\n";
-        return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(false, gameID));
+        return new UIResult(message, State.POSTLOGIN, authToken, new OpenWebsocket(false, gameID), playerColor);
     }
 
     private UIResult makeMove(String... params) throws ResponseException {
@@ -92,10 +92,20 @@ public class GameplayUI {
                     'h', 8));
             Character startColChar = moveInput.charAt(0);
             Character endColChar = moveInput.charAt(2);
+            if (!cols.containsKey(startColChar) || !cols.containsKey(endColChar)) {
+                throw new ResponseException("Invalid move. Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
+            }
             Integer startCol = cols.get(startColChar);
             Integer endCol = cols.get(endColChar);
+
+            Set<Character> rows = new HashSet<>(Set.of('1', '2', '3', '4', '5', '6', '7', '8'));
+            Character startRowChar = moveInput.charAt(1);
+            Character endRowChar = moveInput.charAt(3);
+            if (!rows.contains(startRowChar) || !rows.contains(endRowChar)) {
+                throw new ResponseException("Invalid move. Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
+            }
             int startRow = Character.getNumericValue(moveInput.charAt(1));
-            int endRow = Character.getNumericValue(moveInput.charAt(1));
+            int endRow = Character.getNumericValue(moveInput.charAt(3));
 
             ChessGame game = getChessGame();
             if (game == null) {
@@ -106,8 +116,11 @@ public class GameplayUI {
             var endPosition = new ChessPosition(endRow, endCol);
             var startPiece = game.getBoard().getPiece(startPosition);
 
-            if (startPiece == null || startPiece.getTeamColor() != playerColor) {
-                throw new ResponseException("Invalid move");
+            if (startPiece == null) {
+                throw new ResponseException("Invalid move: No starting piece here.");
+            }
+            if (startPiece.getTeamColor() != playerColor) {
+                throw new ResponseException("Invalid move: It's the other player's turn.");
             }
 
             ChessPiece.PieceType promotionPiece = null;
@@ -136,22 +149,25 @@ public class GameplayUI {
                 }
             }
 
-            ws.sendCommand(new MakeMoveCommand(
-                    authToken, gameID, new ChessMove(startPosition, endPosition, promotionPiece)
-            ));
-            return new UIResult("Move was made", State.GAMEPLAY, authToken, null);
+            var proposedMove = new ChessMove(startPosition, endPosition, promotionPiece);
+            if (!game.validMoves(startPosition).contains(proposedMove)) {
+                throw new ResponseException("Invalid move");
+            }
+
+            ws.sendCommand(new MakeMoveCommand(authToken, gameID, proposedMove));
+            return new UIResult("Attempting to make move...", State.GAMEPLAY, authToken, null, playerColor);
         }
         throw new ResponseException("Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
     }
 
     private UIResult resign() throws ResponseException {
         String message = "resign\n";
-        return new UIResult(message, State.GAMEPLAY, authToken, null);
+        return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
     }
 
     private UIResult highlightMoves() throws ResponseException {
         String message = "highlight\n";
-        return new UIResult(message, State.GAMEPLAY, authToken, null);
+        return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
     }
 
     private ChessGame getChessGame() throws ResponseException {
@@ -174,7 +190,7 @@ public class GameplayUI {
                 - highlight -> legal moves
                 - help -> with possible commands
                 """;
-        return new UIResult(message, State.GAMEPLAY, null, null);
+        return new UIResult(message, State.GAMEPLAY, null, null, playerColor);
     }
 
     private void printPrompt() {

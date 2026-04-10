@@ -70,7 +70,7 @@ public class WebSocketFacade extends Endpoint {
 
     private void handleLoadGameMessage(LoadGameMessage loadGameMessage) {
         ChessGame game = new Gson().fromJson(loadGameMessage.getGame(), ChessGame.class);
-        serverMessageHandler.printLoadGame(game, loadGameMessage.getTeamColor());
+        serverMessageHandler.printLoadGame(game);
     }
 
     private void handleNotification(NotificationMessage notification) {
