@@ -14,6 +14,7 @@ import model.GameData;
 import requests.GetGamesRequest;
 import results.GetGamesResult;
 import websocket.commands.MakeMoveCommand;
+import websocket.commands.UserGameCommand;
 
 import java.util.*;
 
@@ -121,10 +122,10 @@ public class GameplayUI {
             ChessPiece.PieceType promotionPiece = null;
 
             if ((endRow == 1 &&
-                    game.getBoard().getPiece(endPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    startPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
                     playerColor == TeamColor.BLACK) ||
                     (endRow == 8 &&
-                            game.getBoard().getPiece(endPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                            startPiece.getPieceType() == ChessPiece.PieceType.PAWN &&
                             playerColor == TeamColor.WHITE)) {
                 promotionPiece = getPromotionPiece();
             }
@@ -168,8 +169,17 @@ public class GameplayUI {
     }
 
     private UIResult resign() throws ResponseException {
-        String message = "resign\n";
-        return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
+        Scanner secondScanner = new Scanner(System.in);
+        System.out.print("Are you sure you want to resign? Type yes to resign");
+        String line = secondScanner.nextLine();
+        String[] tokens = line.toLowerCase().split(" ");
+        String firstResponse = tokens[0];
+        if (firstResponse.equals("yes")) {
+            String message = "You resigned. Game is over.\n";
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID));
+            return new UIResult(message, State.GAMEPLAY, authToken, null, playerColor);
+        }
+        return new UIResult("You did not resign", State.GAMEPLAY, authToken, null, playerColor);
     }
 
     private UIResult highlightMoves(String... params) throws ResponseException {

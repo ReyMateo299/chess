@@ -24,6 +24,8 @@ import websocket.messages.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -169,7 +171,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String serializedMessage = new Gson().toJson(loadGameMessage);
         connections.broadcast(gameID, null, serializedMessage);
 
-        String message = "Player made move:" + move;
+        String moveFormatted = getMoveString(move);
+
+        String message = String.format("%s made move: %s", username, moveFormatted);
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
@@ -278,10 +282,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         // Remove play from game in database
-        String color;
+        String color = null;
         if (playerColor == TeamColor.WHITE) {
             color = "WHITE";
-        } else {
+        } else if (playerColor == TeamColor.BLACK){
             color = "BLACK";
         }
         if (playerColor != null) {
@@ -293,7 +297,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         connections.remove(gameID, session);
-        var message = String.format("%s left the game", user.username());
+        String message;
+        if (color != null) {
+            message = String.format("%s as team %s left the game", user.username(), color);
+        } else {
+            message = String.format("Observer %s left the game", user.username());
+        }
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, null, serializedNotification);
@@ -315,6 +324,27 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (DataAccessException e) {
             throw new ServiceException("Internal Server Error");
         }
+    }
+
+    private String getMoveString(ChessMove move) {
+        var startPosition = move.getStartPosition();
+        var endPosition = move.getEndPosition();
+        String firstLetter = getColLetter(startPosition.getColumn());
+        String secondLetter = getColLetter(endPosition.getColumn());
+        return firstLetter + startPosition.getRow() + secondLetter + endPosition.getRow();
+    }
+
+    private String getColLetter(int col) {
+        Map<Integer, String> cols = new HashMap<>(Map.of(
+                1, "a",
+                2, "b",
+                3, "c",
+                4, "d",
+                5, "e",
+                6, "f",
+                7, "g",
+                8, "h"));
+        return cols.get(col);
     }
 
     private Boolean userExists(AuthData user, Session session) throws IOException{
