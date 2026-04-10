@@ -98,7 +98,6 @@ public class Client implements ServerMessageHandler {
     public void printLoadGame(ChessGame game) {
         System.out.println(SET_TEXT_COLOR_RED + "Load Message: ");
         System.out.println(ChessBoardPrinter.printChessBoard(playerColor, game, null));
-
         printGameplayUIPrompt();
     }
 

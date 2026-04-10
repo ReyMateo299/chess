@@ -92,14 +92,15 @@ public class GameplayUI {
                 throw new ResponseException("Invalid move. Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
             }
 
-            Set<Character> rows = new HashSet<>(Set.of('1', '2', '3', '4', '5', '6', '7', '8'));
-            Character startRowChar = moveInput.charAt(1);
-            Character endRowChar = moveInput.charAt(3);
-            if (!rows.contains(startRowChar) || !rows.contains(endRowChar)) {
+            Integer startRow;
+            Integer endRow;
+
+            try {
+                startRow = getRow(moveInput.charAt(1));
+                endRow = getRow(moveInput.charAt(3));
+            } catch (ResponseException e) {
                 throw new ResponseException("Invalid move. Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
             }
-            int startRow = Character.getNumericValue(moveInput.charAt(1));
-            int endRow = Character.getNumericValue(moveInput.charAt(3));
 
             ChessGame game = getChessGame();
             if (game == null) {
@@ -121,7 +122,7 @@ public class GameplayUI {
 
             if ((endRow == 1 && playerColor == TeamColor.BLACK) ||
                     (endRow == 8 && playerColor == TeamColor.WHITE)) {
-                Set<String> validPromotions = new HashSet<>(Set.of("N", "B", "R", "Q"));
+                Set<String> validPromotions = new HashSet<>(Set.of("n", "b", "r", "q"));
 
                 boolean validResponse = false;
                 while (!validResponse) {
@@ -134,10 +135,10 @@ public class GameplayUI {
                     if (tokens.length == 1 && validPromotions.contains(pieceString)) {
                         validResponse = true;
                         switch (pieceString) {
-                            case "N" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
-                            case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
-                            case "R" -> promotionPiece = ChessPiece.PieceType.ROOK;
-                            case "Q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+                            case "n" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+                            case "b" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+                            case "r" -> promotionPiece = ChessPiece.PieceType.ROOK;
+                            case "q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
                         }
                     }
                 }
@@ -166,15 +167,15 @@ public class GameplayUI {
             try {
                 startCol = getCol(positionInput.charAt(0));
             } catch (ResponseException e) {
-                throw new ResponseException("Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
-            }
-
-            Set<Character> rows = new HashSet<>(Set.of('1', '2', '3', '4', '5', '6', '7', '8'));
-            Character startRowChar = positionInput.charAt(1);
-            if (!rows.contains(startRowChar)) {
                 throw new ResponseException("Invalid position. Expected form: highlight <StartPosition>    Example: highlight e2");
             }
-            int startRow = Character.getNumericValue(positionInput.charAt(1));
+
+            Integer startRow;
+            try {
+                startRow = getRow(positionInput.charAt(1));
+            } catch (ResponseException e) {
+                throw new ResponseException("Invalid position. Expected form: highlight <StartPosition>    Example: highlight e2");
+            }
 
             var startPosition = new ChessPosition(startRow, startCol);
 
@@ -190,31 +191,36 @@ public class GameplayUI {
 
     private Integer getCol(Character colChar) throws ResponseException {
         Map<Character, Integer> cols;
-        if (playerColor == TeamColor.WHITE) {
-            cols = new HashMap<>(Map.of(
-                    'a', 1,
-                    'b', 2,
-                    'c', 3,
-                    'd', 4,
-                    'e', 5,
-                    'f', 6,
-                    'g', 7,
-                    'h', 8));
-        } else {
-            cols = new HashMap<>(Map.of(
-                    'a', 8,
-                    'b', 7,
-                    'c', 6,
-                    'd', 5,
-                    'e', 4,
-                    'f', 3,
-                    'g', 2,
-                    'h', 1));
-        }
+        cols = new HashMap<>(Map.of(
+                'a', 1,
+                'b', 2,
+                'c', 3,
+                'd', 4,
+                'e', 5,
+                'f', 6,
+                'g', 7,
+                'h', 8));
         if (!cols.containsKey(colChar)) {
             throw new ResponseException("getCol Failed");
         }
         return cols.get(colChar);
+    }
+
+    private Integer getRow(Character rowChar) throws ResponseException {
+        Map<Character, Integer> rows;
+        rows = new HashMap<>(Map.of(
+                '1', 1,
+                '2', 2,
+                '3', 3,
+                '4', 4,
+                '5', 5,
+                '6', 6,
+                '7', 7,
+                '8', 8));
+        if (!rows.containsKey(rowChar)) {
+            throw new ResponseException("getRow Failed");
+        }
+        return rows.get(rowChar);
     }
 
     private ChessGame getChessGame() throws ResponseException {

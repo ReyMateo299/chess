@@ -38,9 +38,9 @@ public class ChessBoardPrinter {
 
         for (int i = 8; i > 0; i--) {
             if (i % 2 == 0) {
-                sb.append(printRow(TeamColor.WHITE, i, board, startPosition, greenMoves));
+                sb.append(printRowWhite(TeamColor.WHITE, i, board, startPosition, greenMoves));
             } else {
-                sb.append(printRow(TeamColor.BLACK, i, board, startPosition, greenMoves));
+                sb.append(printRowWhite(TeamColor.BLACK, i, board, startPosition, greenMoves));
             }
             sb.append(nextLine());
         }
@@ -52,16 +52,16 @@ public class ChessBoardPrinter {
 
         for (int i = 1; i < 9; i++) {
             if (i % 2 == 1) {
-                sb.append(printRow(TeamColor.WHITE, i, board, startPosition, greenMoves));
+                sb.append(printRowBlack(TeamColor.WHITE, i, board, startPosition, greenMoves));
             } else {
-                sb.append(printRow(TeamColor.BLACK, i, board, startPosition, greenMoves));
+                sb.append(printRowBlack(TeamColor.BLACK, i, board, startPosition, greenMoves));
             }
             sb.append(nextLine());
         }
         return sb.toString();
     }
 
-    private static String printRow(TeamColor startingTile, Integer i, ChessBoard board, ChessPosition startPosition, Collection<ChessPosition> greenMoves) {
+    private static String printRowWhite(TeamColor startingTile, Integer i, ChessBoard board, ChessPosition startPosition, Collection<ChessPosition> greenMoves) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(setBorderConfigs());
@@ -70,6 +70,32 @@ public class ChessBoardPrinter {
 
         TeamColor tileColor = startingTile;
         for (int j = 1; j < 9; j++) {
+            ChessPosition square = new ChessPosition(i, j);
+            if (square.equals(startPosition)) {
+                sb.append(printSquare(board.getPiece(square), tileColor, true, true));
+            } else if (greenMoves.contains(square)){
+                sb.append(printSquare(board.getPiece(square), tileColor, true, false));
+            } else {
+                sb.append(printSquare(board.getPiece(square), tileColor, false, false));
+            }
+            tileColor = swapTile(tileColor);
+        }
+
+        sb.append(setBorderConfigs());
+        sb.append(" ").append(i).append(" ");
+
+        return sb.toString();
+    }
+
+    private static String printRowBlack(TeamColor startingTile, Integer i, ChessBoard board, ChessPosition startPosition, Collection<ChessPosition> greenMoves) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(setBorderConfigs());
+        sb.append(" ").append(i).append(" ");
+//        sb.append(SET_TEXT_COLOR_BLUE);
+
+        TeamColor tileColor = startingTile;
+        for (int j = 8; j > 0; j--) {
             ChessPosition square = new ChessPosition(i, j);
             if (square.equals(startPosition)) {
                 sb.append(printSquare(board.getPiece(square), tileColor, true, true));
