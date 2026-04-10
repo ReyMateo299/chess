@@ -165,19 +165,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (DataAccessException e) {
             throw new ServiceException(e.getMessage());
         }
-
         game = getGame(gameID).game();
         var loadGameMessage = new LoadGameMessage(new Gson().toJson(game), playerColor);
         String serializedMessage = new Gson().toJson(loadGameMessage);
         connections.broadcast(gameID, null, serializedMessage);
-
         String moveFormatted = getMoveString(move);
-
         String message = String.format("%s made move: %s", username, moveFormatted);
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
-
         if (game.isInStalemate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
             message = "Stalemate!";
             notification = new NotificationMessage(message);
