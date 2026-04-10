@@ -120,28 +120,13 @@ public class GameplayUI {
 
             ChessPiece.PieceType promotionPiece = null;
 
-            if ((endRow == 1 && playerColor == TeamColor.BLACK) ||
-                    (endRow == 8 && playerColor == TeamColor.WHITE)) {
-                Set<String> validPromotions = new HashSet<>(Set.of("n", "b", "r", "q"));
-
-                boolean validResponse = false;
-                while (!validResponse) {
-                    Scanner secondScanner = new Scanner(System.in);
-                    System.out.print("\n" + RESET_TEXT_COLOR + "Options: N, B, R, Q");
-                    System.out.print("\n" + "[IN_GAME] Enter Promotion piece type >>> " + SET_TEXT_COLOR_GREEN);
-                    String line = secondScanner.nextLine();
-                    String[] tokens = line.toLowerCase().split(" ");
-                    String pieceString = tokens[0];
-                    if (tokens.length == 1 && validPromotions.contains(pieceString)) {
-                        validResponse = true;
-                        switch (pieceString) {
-                            case "n" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
-                            case "b" -> promotionPiece = ChessPiece.PieceType.BISHOP;
-                            case "r" -> promotionPiece = ChessPiece.PieceType.ROOK;
-                            case "q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
-                        }
-                    }
-                }
+            if ((endRow == 1 &&
+                    game.getBoard().getPiece(endPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                    playerColor == TeamColor.BLACK) ||
+                    (endRow == 8 &&
+                            game.getBoard().getPiece(endPosition).getPieceType() == ChessPiece.PieceType.PAWN &&
+                            playerColor == TeamColor.WHITE)) {
+                promotionPiece = getPromotionPiece();
             }
 
             var proposedMove = new ChessMove(startPosition, endPosition, promotionPiece);
@@ -153,6 +138,33 @@ public class GameplayUI {
             return new UIResult("Attempting to make move...", State.GAMEPLAY, authToken, null, playerColor);
         }
         throw new ResponseException("Expected form: make <StartPosition><EndPosition>    Example: make e2e4");
+    }
+
+    private ChessPiece.PieceType getPromotionPiece() {
+        ChessPiece.PieceType promotionPiece = null;
+
+        Set<String> validPromotions = new HashSet<>(Set.of("n", "b", "r", "q"));
+
+        boolean validResponse = false;
+        while (!validResponse) {
+            Scanner secondScanner = new Scanner(System.in);
+            System.out.print("\n" + RESET_TEXT_COLOR + "Options: N, B, R, Q");
+            System.out.print("\n" + "[IN_GAME] Enter Promotion piece type >>> " + SET_TEXT_COLOR_GREEN);
+            String line = secondScanner.nextLine();
+            String[] tokens = line.toLowerCase().split(" ");
+            String pieceString = tokens[0];
+            if (tokens.length == 1 && validPromotions.contains(pieceString)) {
+                validResponse = true;
+                switch (pieceString) {
+                    case "n" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+                    case "b" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+                    case "r" -> promotionPiece = ChessPiece.PieceType.ROOK;
+                    case "q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+                }
+            }
+        }
+
+        return promotionPiece;
     }
 
     private UIResult resign() throws ResponseException {

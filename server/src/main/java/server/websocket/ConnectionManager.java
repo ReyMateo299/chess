@@ -18,13 +18,6 @@ public class ConnectionManager {
         connections.get(gameID).add(session);
     }
 
-//    public List<Session> getSessions(Integer gameID) {
-//        if (!connections.containsKey(gameID)) {
-//            return null;
-//        }
-//        return connections.get(gameID);
-//    }
-
     public void remove(Integer gameID, Session session) {
         if (connections.containsKey(gameID)) {
             connections.get(gameID).remove(session);

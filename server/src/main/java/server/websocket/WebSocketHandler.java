@@ -119,10 +119,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             session.getRemote().sendString(new Gson().toJson(errorMessage));
             return;
         }
-
         String username = user.username();
         TeamColor playerColor = null;
-
         if (gameData.whiteUsername().equals(username)) {
             playerColor = TeamColor.WHITE;
         } else if (gameData.blackUsername().equals(username)) {
@@ -152,7 +150,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         ChessMove move = command.getMove();
         ChessPosition startPosition = move.getStartPosition();
-//        ChessPosition endPosition = move.getEndPosition();
         Collection<ChessMove> validMoves = game.validMoves(startPosition);
 
         if (!validMoves.contains(move)) {
@@ -161,7 +158,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return;
         }
 
-        // Update ChessGame in database
         try {
             gameDAO.updateGameWithMove(gameID, move);
         } catch (DataAccessException e) {
@@ -169,19 +165,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
 
         game = getGame(gameID).game();
-
-        // Send Load_game message
         var loadGameMessage = new LoadGameMessage(new Gson().toJson(game), playerColor);
         String serializedMessage = new Gson().toJson(loadGameMessage);
         connections.broadcast(gameID, null, serializedMessage);
 
-        // Send notification of the move to all other clients
-        String message = "Player made move: INSERT_MOVE_HERE";
+        String message = "Player made move:" + move;
         var notification = new NotificationMessage(message);
         String serializedNotification = new Gson().toJson(notification);
         connections.broadcast(gameID, session, serializedNotification);
 
-        // Send move result notification to all clients
         if (game.isInStalemate(TeamColor.WHITE) || game.isInStalemate(TeamColor.BLACK)) {
             message = "Stalemate!";
             notification = new NotificationMessage(message);
